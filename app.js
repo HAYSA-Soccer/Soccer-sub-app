@@ -55,10 +55,16 @@ const savePlayerBtn = document.getElementById("savePlayerBtn");
 const deletePlayerBtn = document.getElementById("deletePlayerBtn");
 
 let editingPlayerId = null;
+let selectedPlayerId = null;
 
 // ===============================
 // UTIL
 // ===============================
+
+function getPlayerById(id) {
+  const team = getCurrentTeam();
+  return team ? team.players.find(p => p.id === id) : null;
+}
 
 function generateId() {
   return Math.random().toString(36).slice(2, 10);
@@ -418,6 +424,18 @@ function renderBench() {
       const token = document.createElement("div");
       token.className = "player-token bench";
       token.innerHTML = `<div>#${player.number}</div><div>${player.name}</div>`;
+
+      // Highlight if selected
+      if (selectedPlayerId === player.id) {
+        token.classList.add("selected");
+      }
+
+      token.addEventListener("click", () => {
+        selectedPlayerId = player.id;
+        renderBench();
+        renderField();
+      });
+
       benchEl.appendChild(token);
     });
 }
