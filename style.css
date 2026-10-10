@@ -58,8 +58,10 @@ body {
 
 .app-main {
   display: flex;
-  height: calc(100vh - 48px);
+  min-height: calc(100vh - 48px);
+  overflow-y: auto;
 }
+
 
 .field-container {
   flex: 2;
