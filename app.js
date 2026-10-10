@@ -566,7 +566,8 @@ function renderBench() {
     .sort((a, b) => a.number - b.number)
     .forEach(player => {
       const token = document.createElement("div");
-      token.className = "player
+      token.className = "player-token bench";
+
       token.innerHTML = `
         <div class="player-number">#${player.number}</div>
         <div class="player-name">${player.name}</div>
@@ -576,7 +577,6 @@ function renderBench() {
           <span class="field-time ${player.onField ? "active" : ""}">F: ${player.minutesField}</span>
         </div>
       `;
-
 
       if (selectedPlayerId === player.id) {
         token.classList.add("selected");
@@ -598,6 +598,7 @@ function renderBench() {
       benchEl.appendChild(token);
     });
 }
+
 
 // Bench drop zone: tap empty bench area to send selected field player to bench
 benchEl.parentElement.addEventListener("touchstart", (e) => {
