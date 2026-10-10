@@ -1,7 +1,3 @@
-alert("app.js loaded");
-
-
-
 // ===============================
 // BASIC DATA MODEL
 // ===============================
@@ -73,13 +69,29 @@ function getCurrentTeam() {
 }
 
 // ===============================
-// STORAGE
+// STORAGE (with migration)
 // ===============================
 
 function loadTeams() {
   const raw = localStorage.getItem(STORAGE_KEY_TEAMS);
   if (raw) {
     teams = JSON.parse(raw);
+
+    // MIGRATE OLD PLAYER SHAPE SAFELY
+    teams.forEach(team => {
+      if (!Array.isArray(team.players)) return;
+      team.players.forEach(p => {
+        if (!p.positions || typeof p.positions !== "object") {
+          p.positions = { primary: [], secondary: [], tertiary: [] };
+        } else {
+          p.positions.primary = Array.isArray(p.positions.primary) ? p.positions.primary : [];
+          p.positions.secondary = Array.isArray(p.positions.secondary) ? p.positions.secondary : [];
+          p.positions.tertiary = Array.isArray(p.positions.tertiary) ? p.positions.tertiary : [];
+        }
+        if (typeof p.onField !== "boolean") p.onField = false;
+        if (!("assignedPos" in p)) p.assignedPos = null;
+      });
+    });
   } else {
     teams = [
       {
@@ -90,7 +102,7 @@ function loadTeams() {
       }
     ];
   }
-  if (!currentTeamId) currentTeamId = teams[0].id;
+  if (!currentTeamId && teams.length) currentTeamId = teams[0].id;
 }
 
 function saveTeams() {
@@ -158,7 +170,10 @@ function renderRosterList(team) {
     .forEach(player => {
       const li = document.createElement("li");
       li.dataset.playerId = player.id;
-      const primary = player.positions.primary.join(", ");
+
+      const pos = player.positions || { primary: [] };
+      const primary = Array.isArray(pos.primary) ? pos.primary.join(", ") : "";
+
       li.innerHTML = `
         <span>#${player.number} ${player.name}</span>
         <span class="role-tag">${primary}</span>
@@ -210,10 +225,13 @@ function loadPlayerIntoEditor(player) {
   playerEditorTitleEl.textContent = `Edit Player #${player.number}`;
   playerNameInputEl.value = player.name;
   playerNumberInputEl.value = player.number;
-  playerPrimaryInputEl.value = player.positions.primary.join(",");
-  playerSecondaryInputEl.value = player.positions.secondary.join(",");
-  playerTertiaryInputEl.value = player.positions.tertiary.join(",");
-  playerTwoWayInputEl.checked = player.twoWay;
+
+  const pos = player.positions || { primary: [], secondary: [], tertiary: [] };
+  playerPrimaryInputEl.value = Array.isArray(pos.primary) ? pos.primary.join(",") : "";
+  playerSecondaryInputEl.value = Array.isArray(pos.secondary) ? pos.secondary.join(",") : "";
+  playerTertiaryInputEl.value = Array.isArray(pos.tertiary) ? pos.tertiary.join(",") : "";
+
+  playerTwoWayInputEl.checked = !!player.twoWay;
   playerNotesInputEl.value = player.notes || "";
 }
 
@@ -362,6 +380,7 @@ function renderField() {
 
   const slots = FORMATION_SLOTS[team.formation] || FORMATION_SLOTS["7v7-2-3-1"];
 
+  // Draw slots
   slots.forEach(slot => {
     const div = document.createElement("div");
     div.className = "position-slot";
@@ -372,6 +391,7 @@ function renderField() {
     fieldEl.appendChild(div);
   });
 
+  // Draw players on field
   team.players
     .filter(p => p.onField && p.assignedPos)
     .forEach(player => {
