@@ -470,10 +470,15 @@ function renderField() {
       token.style.left = `${slot.x}%`;
       token.style.top = `${slot.y}%`;
       token.innerHTML = `
-        <div>#${player.number}</div>
-        <div>${player.name}</div>
-        <div class="minutes">B: ${player.minutesBench} | F: ${player.minutesField}</div>
+        <div class="player-number">#${player.number}</div>
+        <div class="player-name">${player.name}</div>
+        <div class="minutes">
+          <span class="bench-time ${player.onField ? "" : "active"}">B: ${player.minutesBench}</span>
+          |
+          <span class="field-time ${player.onField ? "active" : ""}">F: ${player.minutesField}</span>
+        </div>
       `;
+
 
 
       // MOBILE TAP: select field player
@@ -561,10 +566,15 @@ function renderBench() {
     .sort((a, b) => a.number - b.number)
     .forEach(player => {
       const token = document.createElement("div");
-      token.className = "player-token bench";token.innerHTML = `
-        <div>#${player.number}</div>
-        <div>${player.name}</div>
-        <div class="minutes">${player.minutesBench} min</div>
+      token.className = "player
+      token.innerHTML = `
+        <div class="player-number">#${player.number}</div>
+        <div class="player-name">${player.name}</div>
+        <div class="minutes">
+          <span class="bench-time ${player.onField ? "" : "active"}">B: ${player.minutesBench}</span>
+          |
+          <span class="field-time ${player.onField ? "active" : ""}">F: ${player.minutesField}</span>
+        </div>
       `;
 
 
