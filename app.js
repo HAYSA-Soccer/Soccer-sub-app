@@ -495,18 +495,14 @@ function renderBench() {
         token.classList.add("selected");
       }
 
-      // MOBILE TAP
+      // --- MOBILE TAP ---
       token.addEventListener("touchstart", () => {
-        selectedPlayerId = player.id;
-        renderBench();
-        renderField();
+        handleBenchTap(player.id);
       });
 
-      // DESKTOP CLICK
+      // --- DESKTOP CLICK ---
       token.addEventListener("click", () => {
-        selectedPlayerId = player.id;
-        renderBench();
-        renderField();
+        handleBenchTap(player.id);
       });
 
       benchEl.appendChild(token);
