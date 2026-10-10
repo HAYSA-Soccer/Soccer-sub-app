@@ -477,6 +477,33 @@ function renderField() {
 }
 
 
+function handleBenchDropZone() {
+  const team = getCurrentTeam();
+  if (!team) return;
+
+  // No player selected → do nothing
+  if (!selectedPlayerId) return;
+
+  const player = getPlayerById(selectedPlayerId);
+  if (!player) return;
+
+  // If selected player is ON FIELD → send them to bench
+  if (player.onField) {
+    player.onField = false;
+    player.assignedPos = null;
+    selectedPlayerId = null;
+
+    renderField();
+    renderBench();
+    renderSuggestions();
+    return;
+  }
+
+  // If selected player is already on bench → do nothing
+}
+
+
+
 function renderBench() {
   const team = getCurrentTeam();
   if (!team) return;
