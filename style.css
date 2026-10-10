@@ -18,7 +18,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: system-ui, sans-serif;
-  overflow: hidden; /* app-style */
+  overflow: hidden;
 }
 
 .hidden {
@@ -43,41 +43,62 @@ body {
   background: var(--danger);
 }
 
+.card {
+  background: #1f2933;
+  padding: 16px;
+  border-radius: 8px;
+}
+
 /* ===========================
-   MAIN GAME VIEW (FULL SCREEN)
+   SCREEN LAYOUT
    =========================== */
 
-.app-main {
+.screen {
   height: 100vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-/* FIXED HEADER */
-
-.app-header {
+.screen-header {
   flex: 0 0 var(--header-height);
   height: var(--header-height);
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 0 12px;
+  gap: 12px;
+  padding: 0 16px;
   background: #111827;
   border-bottom: 1px solid #263238;
 }
 
-/* SCROLLABLE CONTENT AREA */
-
-.game-content {
+.screen-content {
   flex: 1 1 auto;
   overflow-y: auto;
+  padding: 16px;
   display: flex;
-  padding: 12px;
-  gap: 12px;
+  flex-direction: column;
+  gap: 16px;
 }
 
-/* FIELD */
+.screen-footer {
+  flex: 0 0 var(--footer-height);
+  height: var(--footer-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-top: 1px solid #263238;
+  background: #111827;
+}
+
+/* ===========================
+   GAME SCREEN
+   =========================== */
+
+.game-layout {
+  flex-direction: row;
+  gap: 12px;
+}
 
 .field-container {
   flex: 2;
@@ -115,27 +136,6 @@ body {
   box-shadow: 0 0 10px var(--accent);
 }
 
-/* BENCH */
-
-.bench-container {
-  flex: 1;
-  background: #111827;
-  border-left: 1px solid #263238;
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-}
-
-.bench-header {
-  margin-bottom: 6px;
-  font-weight: 600;
-}
-
-.bench {
-  flex: 1;
-  overflow-y: auto;
-}
-
 .player-token {
   position: absolute;
   width: 52px;
@@ -152,18 +152,30 @@ body {
   text-align: center;
 }
 
-.player-token.bench {
-  position: relative;
-  margin-bottom: 6px;
-  background: #546e7a;
-}
-
 .player-token.selected {
   outline: 3px solid var(--accent);
   box-shadow: 0 0 10px var(--accent);
 }
 
-/* SUGGESTIONS */
+.bench-container {
+  flex: 1;
+  background: #111827;
+  border-left: 1px solid #263238;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.bench {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.player-token.bench {
+  position: relative;
+  margin-bottom: 6px;
+  background: #546e7a;
+}
 
 .suggestions {
   border-top: 1px solid #263238;
@@ -171,114 +183,18 @@ body {
 }
 
 /* ===========================
-   TEAM MANAGER (FULL SCREEN)
+   TEAM MANAGER
    =========================== */
 
-.roster-main {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: #111827;
-}
-
-/* FIXED HEADER */
-
-.roster-header {
-  flex: 0 0 var(--header-height);
-  height: var(--header-height);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0 16px;
-  border-bottom: 1px solid #263238;
-}
-
-/* SCROLLABLE CONTENT */
-
-.roster-content {
-  flex: 1 1 auto;
-  overflow-y: auto;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-/* TEAM META */
-
-.team-meta {
-  background: #1f2933;
-  padding: 16px;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.team-meta label {
-  display: flex;
-  flex-direction: column;
-  font-size: 0.85rem;
-}
-
-.team-meta input,
-.team-meta select {
-  margin-top: 4px;
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid #37474f;
-  background: #0f172a;
-  color: var(--text);
-}
-
-/* ROSTER LIST */
-
-.roster-list {
-  background: #1f2933;
-  padding: 16px;
-  border-radius: 8px;
-}
-
-#rosterList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-#rosterList li {
-  padding: 10px 12px;
-  margin-bottom: 8px;
-  border-radius: 6px;
-  background: #0f172a;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-#rosterList li span.role-tag {
-  font-size: 0.75rem;
-  color: var(--muted);
-}
-
-/* PLAYER EDITOR */
-
-.player-editor {
-  background: #1f2933;
-  padding: 16px;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
+.team-meta label,
 .player-editor label {
   display: flex;
   flex-direction: column;
   font-size: 0.85rem;
 }
 
+.team-meta input,
+.team-meta select,
 .player-editor input,
 .player-editor textarea {
   margin-top: 4px;
@@ -300,29 +216,13 @@ body {
   gap: 8px;
 }
 
-/* FIXED FOOTER */
-
-.roster-footer {
-  flex: 0 0 var(--footer-height);
-  height: var(--footer-height);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-top: 1px solid #263238;
-  padding: 0 16px;
-}
-
 /* ===========================
    RESPONSIVE
    =========================== */
 
 @media (max-width: 768px) {
-  .game-content {
+  .game-layout {
     flex-direction: column;
-  }
-
-  .field-container {
-    align-items: center;
   }
 
   .bench-container {
