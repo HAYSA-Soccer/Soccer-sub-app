@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Soccer Substitution Assistant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-left">
+      <select id="teamSelect"></select>
+      <button id="addTeamBtn" class="btn small">+ Team</button>
+    </div>
+    <div class="header-right">
+      <span id="gameClock">00:00</span>
+      <button id="startClockBtn" class="btn small">Start</button>
+      <button id="pauseClockBtn" class="btn small">Pause</button>
+      <button id="resetClockBtn" class="btn small">Reset</button>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <section class="field-container">
+      <div id="field" class="field">
+        <!-- Positions rendered by JS -->
+      </div>
+    </section>
+
+    <section class="bench-container">
+      <div class="bench-header">
+        <span>Bench</span>
+        <button id="editRosterBtn" class="btn small">Roster</button>
+      </div>
+      <div id="bench" class="bench">
+        <!-- Bench players rendered by JS -->
+      </div>
+
+      <div class="suggestions">
+        <h3>Sub Suggestions</h3>
+        <ul id="suggestionList"></ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- Player detail modal -->
+  <div id="playerModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalPlayerName"></h2>
+        <button id="closePlayerModal" class="btn small">✕</button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Number:</strong> <span id="modalPlayerNumber"></span></p>
+        <p><strong>Primary:</strong> <span id="modalPlayerPrimary"></span></p>
+        <p><strong>Secondary:</strong> <span id="modalPlayerSecondary"></span></p>
+        <p><strong>Tertiary:</strong> <span id="modalPlayerTertiary"></span></p>
+        <p><strong>Minutes on field:</strong> <span id="modalMinutesField"></span></p>
+        <p><strong>Minutes on bench:</strong> <span id="modalMinutesBench"></span></p>
+        <p><strong>Fatigue:</strong> <span id="modalFatigue"></span></p>
+        <p><strong>Notes:</strong></p>
+        <textarea id="modalNotes"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button id="savePlayerNotes" class="btn">Save Notes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Roster editor modal -->
+  <div id="rosterModal" class="modal hidden">
+    <div class="modal-content large">
+      <div class="modal-header">
+        <h2>Roster Editor</h2>
+        <button id="closeRosterModal" class="btn small">✕</button>
+      </div>
+      <div class="modal-body roster-body">
+        <div class="team-meta">
+          <label>Team Name
+            <input id="teamNameInput" type="text" />
+          </label>
+          <label>Formation
+            <select id="formationInput">
+              <option value="7v7-2-3-1">7v7: 2-3-1</option>
+              <option value="9v9-3-3-2">9v9: 3-3-2</option>
+              <option value="11v11-4-3-3">11v11: 4-3-3</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="roster-list">
+          <h3>Players</h3>
+          <ul id="rosterList"></ul>
+        </div>
+
+        <div class="player-editor">
+          <h3>Add / Edit Player</h3>
+          <label>Name
+            <input id="playerNameInput" type="text" />
+          </label>
+          <label>Number
+            <input id="playerNumberInput" type="number" />
+          </label>
+
+          <label>Primary Positions (comma separated)
+            <input id="playerPrimaryInput" type="text" placeholder="ST,RW,CAM" />
+          </label>
+          <label>Secondary Positions (comma separated)
+            <input id="playerSecondaryInput" type="text" placeholder="LB,RB" />
+          </label>
+          <label>Tertiary Positions (comma separated)
+            <input id="playerTertiaryInput" type="text" placeholder="CB" />
+          </label>
+
+          <label>
+            <input id="playerTwoWayInput" type="checkbox" />
+            Can play offense & defense equally
+          </label>
+
+          <label>Notes
+            <textarea id="playerNotesInput"></textarea>
+          </label>
+
+          <div class="player-editor-actions">
+            <button id="savePlayerBtn" class="btn">Save Player</button>
+            <button id="deletePlayerBtn" class="btn danger">Delete Player</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="saveRosterBtn" class="btn">Save Roster</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
