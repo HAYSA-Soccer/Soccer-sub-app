@@ -1,8 +1,6 @@
-// =========================
 // STORAGE & DATA
-// =========================
 
-const STORAGE_KEY_TEAMS = "soccer_sub_teams_v3";
+const STORAGE_KEY_TEAMS = "soccer_sub_teams_v4";
 const STORAGE_KEY_STATE_PREFIX = "soccer_sub_state_";
 
 let teams = [];
@@ -12,7 +10,6 @@ let selectedPlayerId = null;
 let gameClockSeconds = 0;
 let clockInterval = null;
 
-// Default sample team
 const defaultTeams = [
   {
     id: "u12",
@@ -86,9 +83,7 @@ function formatClock(seconds) {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
-// =========================
 // STATE SAVE / RESTORE
-// =========================
 
 function loadTeamState(teamId) {
   const raw = localStorage.getItem(STORAGE_KEY_STATE_PREFIX + teamId);
@@ -140,9 +135,7 @@ function applyStateToTeam(team, state) {
   });
 }
 
-// =========================
 // DOM ELEMENTS
-// =========================
 
 const teamSelectEl = document.getElementById("teamSelect");
 const goToRosterBtn = document.getElementById("goToRosterBtn");
@@ -160,7 +153,6 @@ const fieldEl = document.getElementById("field");
 const benchEl = document.getElementById("bench");
 const suggestionListEl = document.getElementById("suggestionList");
 
-// roster view
 const teamNameInputEl = document.getElementById("teamNameInput");
 const formationInputEl = document.getElementById("formationInput");
 const addPlayerBtn = document.getElementById("addPlayerBtn");
@@ -177,9 +169,7 @@ const savePlayerBtn = document.getElementById("savePlayerBtn");
 const deletePlayerBtn = document.getElementById("deletePlayerBtn");
 const saveRosterBtn = document.getElementById("saveRosterBtn");
 
-// =========================
 // FIELD LAYOUTS
-// =========================
 
 function getPositionSlotsForFormation(formation) {
   const slots = [];
@@ -220,9 +210,7 @@ function getPositionSlotsForFormation(formation) {
   return slots;
 }
 
-// =========================
 // RENDERING
-// =========================
 
 function renderTeamSelect() {
   teamSelectEl.innerHTML = "";
@@ -316,9 +304,7 @@ function createPlayerToken(player, isBench) {
   return el;
 }
 
-// =========================
 // TAP-TO-SELECT → TAP-TO-PLACE
-// =========================
 
 function handlePlayerSelect(playerId) {
   const team = getTeamById(currentTeamId);
@@ -395,12 +381,9 @@ function placePlayerAtPosition(playerId, positionCode) {
   autosaveState();
 }
 
-// =========================
 // SUGGESTIONS / FATIGUE
-// =========================
 
 function computeFatigue(player) {
-  // simple model: more minutes on field = more fatigue
   return player.minutesField - player.minutesBench * 0.3;
 }
 
@@ -443,9 +426,7 @@ function updateSuggestions() {
   });
 }
 
-// =========================
 // CLOCK
-// =========================
 
 function startClock() {
   if (clockInterval) return;
@@ -486,9 +467,7 @@ function tickMinutes() {
   updateSuggestions();
 }
 
-// =========================
 // AUTOSAVE
-// =========================
 
 function autosaveState() {
   const state = buildCurrentState();
@@ -496,9 +475,7 @@ function autosaveState() {
   saveTeamState(currentTeamId, state);
 }
 
-// =========================
 // TEAM MANAGER VIEW
-// =========================
 
 function showMainView() {
   mainViewEl.classList.remove("hidden");
@@ -647,9 +624,7 @@ saveRosterBtn.addEventListener("click", () => {
   showMainView();
 });
 
-// =========================
 // EVENT WIRING
-// =========================
 
 teamSelectEl.addEventListener("change", () => {
   currentTeamId = teamSelectEl.value;
@@ -669,9 +644,7 @@ startClockBtn.addEventListener("click", startClock);
 pauseClockBtn.addEventListener("click", pauseClock);
 resetClockBtn.addEventListener("click", resetClock);
 
-// =========================
 // INIT
-// =========================
 
 function init() {
   loadTeams();
