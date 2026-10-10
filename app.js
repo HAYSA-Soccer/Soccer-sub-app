@@ -394,20 +394,58 @@ function renderField() {
     div.style.left = `${slot.x}%`;
     div.style.top = `${slot.y}%`;
     div.textContent = slot.id;
+
+    // Highlight slot if a player is selected
+    if (selectedPlayerId) {
+      div.classList.add("highlight");
+    }
+
+    // Click to place selected player
+    div.addEventListener("click", () => {
+      if (!selectedPlayerId) return;
+
+      const player = getPlayerById(selectedPlayerId);
+      if (!player) return;
+
+      // Assign player to this slot
+      player.onField = true;
+      player.assignedPos = slot.id;
+
+      // Clear selection
+      selectedPlayerId = null;
+
+      renderField();
+      renderBench();
+      renderSuggestions();
+    });
+
     fieldEl.appendChild(div);
   });
 
-  // Draw players on field
+  // Draw players already on field
   team.players
     .filter(p => p.onField && p.assignedPos)
     .forEach(player => {
       const slot = slots.find(s => s.id === player.assignedPos);
       if (!slot) return;
+
       const token = document.createElement("div");
       token.className = "player-token";
       token.style.left = `${slot.x}%`;
       token.style.top = `${slot.y}%`;
       token.innerHTML = `<div>#${player.number}</div><div>${player.name}</div>`;
+
+      // Tap field player → send back to bench
+      token.addEventListener("click", () => {
+        player.onField = false;
+        player.assignedPos = null;
+        selectedPlayerId = null;
+
+        renderField();
+        renderBench();
+        renderSuggestions();
+      });
+
       fieldEl.appendChild(token);
     });
 }
