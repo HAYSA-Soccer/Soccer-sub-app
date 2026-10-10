@@ -15,12 +15,25 @@ body {
   font-family: system-ui, sans-serif;
 }
 
+.hidden {
+  display: none !important;
+}
+
+/* HEADER */
+
 .app-header {
   display: flex;
   justify-content: space-between;
   padding: 8px 12px;
   background: #111827;
   border-bottom: 1px solid #263238;
+}
+
+.header-left,
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .btn {
@@ -40,6 +53,8 @@ body {
 .btn.danger {
   background: var(--danger);
 }
+
+/* MAIN GAME VIEW */
 
 .app-main {
   display: flex;
@@ -94,6 +109,8 @@ body {
   align-items: center;
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  font-size: 0.7rem;
+  text-align: center;
 }
 
 .player-token.selected {
@@ -108,6 +125,13 @@ body {
   padding: 8px;
   display: flex;
   flex-direction: column;
+}
+
+.bench-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
 }
 
 .bench {
@@ -126,30 +150,147 @@ body {
   padding-top: 6px;
 }
 
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
+/* TEAM MANAGER VIEW */
+
+.roster-main {
+  height: calc(100vh - 48px);
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+}
+
+.roster-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #263238;
+  background: #111827;
+}
+
+.roster-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 8px 12px;
+  gap: 12px;
+}
+
+.team-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.team-meta label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85rem;
+}
+
+.team-meta input,
+.team-meta select {
+  margin-top: 2px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  border: 1px solid #37474f;
+  background: #0f172a;
+  color: var(--text);
+}
+
+.roster-content {
+  flex: 1;
+  display: flex;
+  padding: 8px 12px;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.roster-list {
+  flex: 1;
+}
+
+.roster-list h3 {
+  margin-top: 0;
+}
+
+#rosterList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#rosterList li {
+  padding: 6px 8px;
+  margin-bottom: 4px;
+  border-radius: 4px;
+  background: #1f2933;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
 }
 
-.modal.hidden {
-  display: none;
+#rosterList li span.role-tag {
+  font-size: 0.7rem;
+  color: var(--muted);
 }
 
-.modal-content {
-  background: #1f2933;
-  padding: 12px;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 420px;
+.player-editor {
+  flex: 1;
+  background: #111827;
+  border-radius: 6px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.modal-content.large {
-  max-width: 900px;
+.player-editor h3 {
+  margin-top: 0;
 }
+
+.player-editor label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85rem;
+}
+
+.player-editor input,
+.player-editor textarea {
+  margin-top: 2px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  border: 1px solid #37474f;
+  background: #0f172a;
+  color: var(--text);
+}
+
+.player-editor textarea {
+  min-height: 60px;
+  resize: vertical;
+}
+
+.checkbox-row {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+
+.player-editor-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.roster-footer {
+  padding: 8px 12px;
+  border-top: 1px solid #263238;
+  background: #111827;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* RESPONSIVE */
 
 @media (max-width: 768px) {
   .app-main {
@@ -164,5 +305,9 @@ body {
     height: 45vh;
     border-left: none;
     border-top: 1px solid #263238;
+  }
+
+  .roster-content {
+    flex-direction: column;
   }
 }
