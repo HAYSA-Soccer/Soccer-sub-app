@@ -469,7 +469,11 @@ function renderField() {
       token.className = "player-token";
       token.style.left = `${slot.x}%`;
       token.style.top = `${slot.y}%`;
-      token.innerHTML = `<div>#${player.number}</div><div>${player.name}</div>`;
+      token.innerHTML = `
+        <div>#${player.number}</div>
+        <div>${player.name}</div>
+        <div class="minutes">${player.minutesField} min</div>
+      `;
 
       // MOBILE TAP: select field player
       token.addEventListener("touchstart", (e) => {
@@ -556,8 +560,12 @@ function renderBench() {
     .sort((a, b) => a.number - b.number)
     .forEach(player => {
       const token = document.createElement("div");
-      token.className = "player-token bench";
-      token.innerHTML = `<div>#${player.number}</div><div>${player.name}</div>`;
+      token.className = "player-token bench";token.innerHTML = `
+        <div>#${player.number}</div>
+        <div>${player.name}</div>
+        <div class="minutes">${player.minutesBench} min</div>
+      `;
+
 
       if (selectedPlayerId === player.id) {
         token.classList.add("selected");
