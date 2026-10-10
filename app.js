@@ -1,14 +1,18 @@
-// ====== DATA & STORAGE ======
+// =========================
+// STORAGE & DATA
+// =========================
 
-const STORAGE_KEY_TEAMS = "soccer_sub_teams_v1";
+const STORAGE_KEY_TEAMS = "soccer_sub_teams_v3";
 const STORAGE_KEY_STATE_PREFIX = "soccer_sub_state_";
 
 let teams = [];
 let currentTeamId = null;
+let selectedPlayerId = null;
+
 let gameClockSeconds = 0;
 let clockInterval = null;
 
-// Default sample teams (you can edit/remove later)
+// Default sample team
 const defaultTeams = [
   {
     id: "u12",
@@ -28,6 +32,7 @@ const defaultTeams = [
         minutesField: 0,
         minutesBench: 0,
         onField: false,
+        assignedPos: null,
         notes: ""
       },
       {
@@ -43,14 +48,12 @@ const defaultTeams = [
         minutesField: 0,
         minutesBench: 0,
         onField: false,
+        assignedPos: null,
         notes: ""
       }
-      // add more players here
     ]
   }
 ];
-
-// ====== UTIL ======
 
 function loadTeams() {
   const raw = localStorage.getItem(STORAGE_KEY_TEAMS);
@@ -83,7 +86,9 @@ function formatClock(seconds) {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
-// ====== STATE SAVE / RESTORE ======
+// =========================
+// STATE SAVE / RESTORE
+// =========================
 
 function loadTeamState(teamId) {
   const raw = localStorage.getItem(STORAGE_KEY_STATE_PREFIX + teamId);
@@ -96,15 +101,13 @@ function loadTeamState(teamId) {
 }
 
 function saveTeamState(teamId, state) {
-  localStorage.setItem(
-    STORAGE_KEY_STATE_PREFIX + teamId,
-    JSON.stringify(state)
-  );
+  localStorage.setItem(STORAGE_KEY_STATE_PREFIX + teamId, JSON.stringify(state));
 }
 
 function buildCurrentState() {
   const team = getTeamById(currentTeamId);
   if (!team) return null;
+
   return {
     gameClockSeconds,
     players: team.players.map(p => ({
@@ -112,6 +115,7 @@ function buildCurrentState() {
       minutesField: p.minutesField,
       minutesBench: p.minutesBench,
       onField: p.onField,
+      assignedPos: p.assignedPos,
       notes: p.notes
     }))
   };
@@ -119,21 +123,34 @@ function buildCurrentState() {
 
 function applyStateToTeam(team, state) {
   if (!state) return;
+
   gameClockSeconds = state.gameClockSeconds || 0;
+
   const map = new Map(state.players.map(p => [p.id, p]));
+
   team.players.forEach(p => {
     const s = map.get(p.id);
     if (!s) return;
+
     p.minutesField = s.minutesField;
     p.minutesBench = s.minutesBench;
     p.onField = s.onField;
+    p.assignedPos = s.assignedPos;
     p.notes = s.notes || "";
   });
 }
 
-// ====== DOM ELEMENTS ======
+// =========================
+// DOM ELEMENTS
+// =========================
 
 const teamSelectEl = document.getElementById("teamSelect");
+const goToRosterBtn = document.getElementById("goToRosterBtn");
+const backToGameBtn = document.getElementById("backToGameBtn");
+
+const mainViewEl = document.getElementById("mainView");
+const rosterViewEl = document.getElementById("rosterView");
+
 const gameClockEl = document.getElementById("gameClock");
 const startClockBtn = document.getElementById("startClockBtn");
 const pauseClockBtn = document.getElementById("pauseClockBtn");
@@ -143,24 +160,12 @@ const fieldEl = document.getElementById("field");
 const benchEl = document.getElementById("bench");
 const suggestionListEl = document.getElementById("suggestionList");
 
-const playerModalEl = document.getElementById("playerModal");
-const closePlayerModalBtn = document.getElementById("closePlayerModal");
-const modalPlayerNameEl = document.getElementById("modalPlayerName");
-const modalPlayerNumberEl = document.getElementById("modalPlayerNumber");
-const modalPlayerPrimaryEl = document.getElementById("modalPlayerPrimary");
-const modalPlayerSecondaryEl = document.getElementById("modalPlayerSecondary");
-const modalPlayerTertiaryEl = document.getElementById("modalPlayerTertiary");
-const modalMinutesFieldEl = document.getElementById("modalMinutesField");
-const modalMinutesBenchEl = document.getElementById("modalMinutesBench");
-const modalFatigueEl = document.getElementById("modalFatigue");
-const modalNotesEl = document.getElementById("modalNotes");
-const savePlayerNotesBtn = document.getElementById("savePlayerNotes");
-
-const rosterModalEl = document.getElementById("rosterModal");
-const closeRosterModalBtn = document.getElementById("closeRosterModal");
+// roster view
 const teamNameInputEl = document.getElementById("teamNameInput");
 const formationInputEl = document.getElementById("formationInput");
+const addPlayerBtn = document.getElementById("addPlayerBtn");
 const rosterListEl = document.getElementById("rosterList");
+const playerEditorTitleEl = document.getElementById("playerEditorTitle");
 const playerNameInputEl = document.getElementById("playerNameInput");
 const playerNumberInputEl = document.getElementById("playerNumberInput");
 const playerPrimaryInputEl = document.getElementById("playerPrimaryInput");
@@ -172,24 +177,15 @@ const savePlayerBtn = document.getElementById("savePlayerBtn");
 const deletePlayerBtn = document.getElementById("deletePlayerBtn");
 const saveRosterBtn = document.getElementById("saveRosterBtn");
 
-const addTeamBtn = document.getElementById("addTeamBtn");
-const editRosterBtn = document.getElementById("editRosterBtn");
-
-let selectedPlayerIdForModal = null;
-let selectedPlayerIdForEditor = null;
-
-// ====== FIELD LAYOUT (simple presets) ======
+// =========================
+// FIELD LAYOUTS
+// =========================
 
 function getPositionSlotsForFormation(formation) {
-  // Very simple layouts; you can refine positions later
   const slots = [];
-
-  const addSlot = (code, xPercent, yPercent) => {
-    slots.push({ code, xPercent, yPercent });
-  };
+  const addSlot = (code, x, y) => slots.push({ code, xPercent: x, yPercent: y });
 
   if (formation.startsWith("7v7")) {
-    // GK, 2 backs, 3 mids, 1 striker
     addSlot("GK", 50, 95);
     addSlot("LB", 25, 75);
     addSlot("RB", 75, 75);
@@ -208,7 +204,6 @@ function getPositionSlotsForFormation(formation) {
     addSlot("CAM", 50, 35);
     addSlot("ST", 50, 15);
   } else {
-    // 11v11 4-3-3
     addSlot("GK", 50, 95);
     addSlot("LB", 20, 80);
     addSlot("LCB", 35, 80);
@@ -225,7 +220,9 @@ function getPositionSlotsForFormation(formation) {
   return slots;
 }
 
-// ====== RENDERING ======
+// =========================
+// RENDERING
+// =========================
 
 function renderTeamSelect() {
   teamSelectEl.innerHTML = "";
@@ -235,9 +232,11 @@ function renderTeamSelect() {
     opt.textContent = team.name;
     teamSelectEl.appendChild(opt);
   });
+
   if (!currentTeamId && teams.length > 0) {
     currentTeamId = teams[0].id;
   }
+
   teamSelectEl.value = currentTeamId;
 }
 
@@ -248,33 +247,32 @@ function renderField() {
   fieldEl.innerHTML = "";
 
   const slots = getPositionSlotsForFormation(team.formation);
+
   slots.forEach(slot => {
-    const slotEl = document.createElement("div");
-    slotEl.className = "position-slot";
-    slotEl.dataset.position = slot.code;
-    slotEl.style.left = `${slot.xPercent}%`;
-    slotEl.style.top = `${slot.yPercent}%`;
-    slotEl.style.transform = "translate(-50%, -50%)";
-    slotEl.textContent = slot.code;
-    fieldEl.appendChild(slotEl);
+    const el = document.createElement("div");
+    el.className = "position-slot";
+    el.dataset.position = slot.code;
+    el.style.left = `${slot.xPercent}%`;
+    el.style.top = `${slot.yPercent}%`;
+    el.style.transform = "translate(-50%, -50%)";
+
+    el.addEventListener("click", () => {
+      if (!selectedPlayerId) return;
+      placePlayerAtPosition(selectedPlayerId, slot.code);
+    });
+
+    fieldEl.appendChild(el);
   });
 
-  // Place players on field
   team.players
-    .filter(p => p.onField)
+    .filter(p => p.onField && p.assignedPos)
     .forEach(p => {
-      const pos = findBestPositionForPlayer(p, slots);
+      const slot = slots.find(s => s.code === p.assignedPos);
+      if (!slot) return;
       const token = createPlayerToken(p, false);
-      if (pos) {
-        token.style.left = `${pos.xPercent}%`;
-        token.style.top = `${pos.yPercent}%`;
-        token.style.transform = "translate(-50%, -50%)";
-      } else {
-        // fallback center
-        token.style.left = "50%";
-        token.style.top = "50%";
-        token.style.transform = "translate(-50%, -50%)";
-      }
+      token.style.left = `${slot.xPercent}%`;
+      token.style.top = `${slot.yPercent}%`;
+      token.style.transform = "translate(-50%, -50%)";
       fieldEl.appendChild(token);
     });
 }
@@ -284,6 +282,7 @@ function renderBench() {
   if (!team) return;
 
   benchEl.innerHTML = "";
+
   team.players
     .filter(p => !p.onField)
     .forEach(p => {
@@ -297,328 +296,163 @@ function createPlayerToken(player, isBench) {
   el.className = "player-token" + (isBench ? " bench" : "");
   el.dataset.playerId = player.id;
 
-  const roleClass = getRoleClassForPlayer(player);
-  if (roleClass) el.classList.add(roleClass);
-
   const nameEl = document.createElement("div");
-  nameEl.className = "player-name";
   nameEl.textContent = player.name;
 
   const numEl = document.createElement("div");
-  numEl.className = "player-number";
   numEl.textContent = `#${player.number}`;
 
   const minsEl = document.createElement("div");
-  minsEl.className = "player-minutes";
   minsEl.textContent = `${Math.round(player.minutesField)}'`;
 
   el.appendChild(nameEl);
   el.appendChild(numEl);
   el.appendChild(minsEl);
 
-  // Click → open player modal
-  el.addEventListener("click", e => {
-    e.stopPropagation();
-    openPlayerModal(player.id);
-  });
-
-  // Drag & drop (simple: click+hold → move)
-  let dragging = false;
-  let offsetX = 0;
-  let offsetY = 0;
-
-  el.addEventListener("mousedown", e => {
-    dragging = true;
-    offsetX = e.offsetX;
-    offsetY = e.offsetY;
-    el.style.cursor = "grabbing";
-  });
-
-  document.addEventListener("mouseup", () => {
-    if (!dragging) return;
-    dragging = false;
-    el.style.cursor = "grab";
-    handleDropPlayer(el);
-  });
-
-  document.addEventListener("mousemove", e => {
-    if (!dragging) return;
-    const rect = fieldEl.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const xPercent = (x / rect.width) * 100;
-    const yPercent = (y / rect.height) * 100;
-    el.style.position = "absolute";
-    el.style.left = `${xPercent}%`;
-    el.style.top = `${yPercent}%`;
-    el.style.transform = "translate(-50%, -50%)";
+  el.addEventListener("click", () => {
+    handlePlayerSelect(player.id);
   });
 
   return el;
 }
 
-function getRoleClassForPlayer(player) {
-  const primary = player.positions.primary || [];
-  if (primary.includes("GK")) return "gk";
-  if (primary.some(p => ["CB", "LCB", "RCB", "LB", "RB"].includes(p)))
-    return "defense";
-  if (primary.some(p => ["ST", "LW", "RW", "CAM"].includes(p)))
-    return "offense";
-  return "";
-}
+// =========================
+// TAP-TO-SELECT → TAP-TO-PLACE
+// =========================
 
-// ====== DRAG / DROP LOGIC (simple) ======
-
-function handleDropPlayer(tokenEl) {
-  const playerId = tokenEl.dataset.playerId;
+function handlePlayerSelect(playerId) {
   const team = getTeamById(currentTeamId);
-  if (!team) return;
   const player = team.players.find(p => p.id === playerId);
-  if (!player) return;
 
-  const rectField = fieldEl.getBoundingClientRect();
-  const rectToken = tokenEl.getBoundingClientRect();
-
-  const centerX = rectToken.left + rectToken.width / 2;
-  const centerY = rectToken.top + rectToken.height / 2;
-
-  const insideField =
-    centerX >= rectField.left &&
-    centerX <= rectField.right &&
-    centerY >= rectField.top &&
-    centerY <= rectField.bottom;
-
-  if (insideField) {
-    // Put on field
-    player.onField = true;
-  } else {
-    // Put on bench
-    player.onField = false;
+  if (selectedPlayerId === playerId) {
+    selectedPlayerId = null;
+    clearHighlights();
+    return;
   }
 
-  renderField();
-  renderBench();
-  updateSuggestions();
-  autosaveState();
+  selectedPlayerId = playerId;
+  highlightPlayer(playerId);
+  highlightValidPositions(player);
 }
 
-// ====== PLAYER MODAL ======
-
-function openPlayerModal(playerId) {
-  const team = getTeamById(currentTeamId);
-  if (!team) return;
-  const player = team.players.find(p => p.id === playerId);
-  if (!player) return;
-
-  selectedPlayerIdForModal = playerId;
-
-  modalPlayerNameEl.textContent = player.name;
-  modalPlayerNumberEl.textContent = player.number;
-  modalPlayerPrimaryEl.textContent = (player.positions.primary || []).join(", ");
-  modalPlayerSecondaryEl.textContent = (player.positions.secondary || []).join(", ");
-  modalPlayerTertiaryEl.textContent = (player.positions.tertiary || []).join(", ");
-  modalMinutesFieldEl.textContent = `${Math.round(player.minutesField)}'`;
-  modalMinutesBenchEl.textContent = `${Math.round(player.minutesBench)}'`;
-  const fatigue = computeFatigue(player);
-  modalFatigueEl.textContent = fatigue.toFixed(2);
-  modalNotesEl.value = player.notes || "";
-
-  playerModalEl.classList.remove("hidden");
-}
-
-function closePlayerModal() {
-  playerModalEl.classList.add("hidden");
-  selectedPlayerIdForModal = null;
-}
-
-closePlayerModalBtn.addEventListener("click", closePlayerModal);
-
-savePlayerNotesBtn.addEventListener("click", () => {
-  if (!selectedPlayerIdForModal) return;
-  const team = getTeamById(currentTeamId);
-  if (!team) return;
-  const player = team.players.find(p => p.id === selectedPlayerIdForModal);
-  if (!player) return;
-  player.notes = modalNotesEl.value || "";
-  saveTeams();
-  autosaveState();
-  closePlayerModal();
-});
-
-// ====== ROSTER MODAL ======
-
-function openRosterModal() {
-  const team = getTeamById(currentTeamId);
-  if (!team) return;
-
-  teamNameInputEl.value = team.name;
-  formationInputEl.value = team.formation;
-
-  renderRosterList(team);
-  clearPlayerEditor();
-
-  rosterModalEl.classList.remove("hidden");
-}
-
-function closeRosterModal() {
-  rosterModalEl.classList.add("hidden");
-  selectedPlayerIdForEditor = null;
-}
-
-closeRosterModalBtn.addEventListener("click", closeRosterModal);
-
-function renderRosterList(team) {
-  rosterListEl.innerHTML = "";
-  team.players.forEach(p => {
-    const li = document.createElement("li");
-    li.textContent = `#${p.number} ${p.name}`;
-    li.dataset.playerId = p.id;
-    if (p.id === selectedPlayerIdForEditor) li.classList.add("active");
-    li.addEventListener("click", () => {
-      selectedPlayerIdForEditor = p.id;
-      renderRosterList(team);
-      loadPlayerIntoEditor(p);
-    });
-    rosterListEl.appendChild(li);
+function highlightPlayer(playerId) {
+  document.querySelectorAll(".player-token").forEach(el => {
+    el.classList.remove("selected");
+    if (el.dataset.playerId === playerId) {
+      el.classList.add("selected");
+    }
   });
 }
 
-function clearPlayerEditor() {
-  playerNameInputEl.value = "";
-  playerNumberInputEl.value = "";
-  playerPrimaryInputEl.value = "";
-  playerSecondaryInputEl.value = "";
-  playerTertiaryInputEl.value = "";
-  playerTwoWayInputEl.checked = false;
-  playerNotesInputEl.value = "";
+function highlightValidPositions(player) {
+  const slots = document.querySelectorAll(".position-slot");
+
+  slots.forEach(slot => {
+    const pos = slot.dataset.position;
+    const { primary, secondary, tertiary } = player.positions;
+
+    if (
+      primary.includes(pos) ||
+      secondary.includes(pos) ||
+      tertiary.includes(pos)
+    ) {
+      slot.classList.add("highlight");
+    }
+  });
 }
 
-function loadPlayerIntoEditor(player) {
-  playerNameInputEl.value = player.name;
-  playerNumberInputEl.value = player.number;
-  playerPrimaryInputEl.value = (player.positions.primary || []).join(",");
-  playerSecondaryInputEl.value = (player.positions.secondary || []).join(",");
-  playerTertiaryInputEl.value = (player.positions.tertiary || []).join(",");
-  playerTwoWayInputEl.checked = !!player.twoWay;
-  playerNotesInputEl.value = player.notes || "";
+function clearHighlights() {
+  document.querySelectorAll(".player-token").forEach(el =>
+    el.classList.remove("selected")
+  );
+
+  document.querySelectorAll(".position-slot").forEach(slot =>
+    slot.classList.remove("highlight")
+  );
 }
 
-savePlayerBtn.addEventListener("click", () => {
+function placePlayerAtPosition(playerId, positionCode) {
   const team = getTeamById(currentTeamId);
-  if (!team) return;
+  const player = team.players.find(p => p.id === playerId);
 
-  const name = playerNameInputEl.value.trim();
-  const number = parseInt(playerNumberInputEl.value.trim(), 10);
-  if (!name || isNaN(number)) return;
+  const existing = team.players.find(
+    p => p.onField && p.assignedPos === positionCode
+  );
 
-  const primary = playerPrimaryInputEl.value
-    .split(",")
-    .map(s => s.trim())
-    .filter(Boolean);
-  const secondary = playerSecondaryInputEl.value
-    .split(",")
-    .map(s => s.trim())
-    .filter(Boolean);
-  const tertiary = playerTertiaryInputEl.value
-    .split(",")
-    .map(s => s.trim())
-    .filter(Boolean);
+  player.onField = true;
+  player.assignedPos = positionCode;
 
-  const twoWay = playerTwoWayInputEl.checked;
-  const notes = playerNotesInputEl.value || "";
-
-  if (selectedPlayerIdForEditor) {
-    const player = team.players.find(p => p.id === selectedPlayerIdForEditor);
-    if (!player) return;
-    player.name = name;
-    player.number = number;
-    player.positions = { primary, secondary, tertiary };
-    player.twoWay = twoWay;
-    player.notes = notes;
-  } else {
-    const newPlayer = {
-      id: generateId(),
-      name,
-      number,
-      positions: { primary, secondary, tertiary },
-      twoWay,
-      minutesField: 0,
-      minutesBench: 0,
-      onField: false,
-      notes
-    };
-    team.players.push(newPlayer);
-    selectedPlayerIdForEditor = newPlayer.id;
+  if (existing) {
+    existing.onField = false;
+    existing.assignedPos = null;
   }
 
-  saveTeams();
-  renderRosterList(team);
+  selectedPlayerId = null;
+  clearHighlights();
   renderField();
   renderBench();
   updateSuggestions();
   autosaveState();
-});
+}
 
-deletePlayerBtn.addEventListener("click", () => {
-  if (!selectedPlayerIdForEditor) return;
+// =========================
+// SUGGESTIONS / FATIGUE
+// =========================
+
+function computeFatigue(player) {
+  // simple model: more minutes on field = more fatigue
+  return player.minutesField - player.minutesBench * 0.3;
+}
+
+function updateSuggestions() {
   const team = getTeamById(currentTeamId);
   if (!team) return;
-  team.players = team.players.filter(p => p.id !== selectedPlayerIdForEditor);
-  selectedPlayerIdForEditor = null;
-  saveTeams();
-  renderRosterList(team);
-  clearPlayerEditor();
-  renderField();
-  renderBench();
-  updateSuggestions();
-  autosaveState();
-});
 
-saveRosterBtn.addEventListener("click", () => {
-  const team = getTeamById(currentTeamId);
-  if (!team) return;
-  const name = teamNameInputEl.value.trim();
-  const formation = formationInputEl.value;
-  if (name) team.name = name;
-  team.formation = formation;
-  saveTeams();
-  renderTeamSelect();
-  renderField();
-  renderBench();
-  updateSuggestions();
-  autosaveState();
-  closeRosterModal();
-});
+  const onField = team.players.filter(p => p.onField);
+  const bench = team.players.filter(p => !p.onField);
 
-addTeamBtn.addEventListener("click", () => {
-  const id = generateId();
-  const newTeam = {
-    id,
-    name: "New Team",
-    formation: "7v7-2-3-1",
-    players: []
-  };
-  teams.push(newTeam);
-  saveTeams();
-  currentTeamId = id;
-  renderTeamSelect();
-  renderField();
-  renderBench();
-  updateSuggestions();
-  autosaveState();
-  openRosterModal();
-});
+  const sortedField = [...onField].sort(
+    (a, b) => computeFatigue(b) - computeFatigue(a)
+  );
 
-editRosterBtn.addEventListener("click", openRosterModal);
+  const suggestions = [];
 
-// ====== CLOCK & TIMERS ======
+  sortedField.slice(0, 3).forEach(fieldPlayer => {
+    const candidates = bench.filter(b =>
+      b.positions.primary.includes(fieldPlayer.assignedPos) ||
+      b.positions.secondary.includes(fieldPlayer.assignedPos) ||
+      b.positions.tertiary.includes(fieldPlayer.assignedPos)
+    );
+
+    if (candidates.length === 0) return;
+
+    const best = candidates[0];
+
+    suggestions.push({
+      out: fieldPlayer,
+      in: best
+    });
+  });
+
+  suggestionListEl.innerHTML = "";
+
+  suggestions.forEach(s => {
+    const li = document.createElement("li");
+    li.textContent = `Sub out #${s.out.number} ${s.out.name} for #${s.in.number} ${s.in.name} (${s.out.assignedPos})`;
+    suggestionListEl.appendChild(li);
+  });
+}
+
+// =========================
+// CLOCK
+// =========================
 
 function startClock() {
   if (clockInterval) return;
   clockInterval = setInterval(() => {
     gameClockSeconds += 1;
     gameClockEl.textContent = formatClock(gameClockSeconds);
-    tickPlayerMinutes();
+    tickMinutes();
     autosaveState();
   }, 1000);
 }
@@ -633,142 +467,28 @@ function resetClock() {
   pauseClock();
   gameClockSeconds = 0;
   gameClockEl.textContent = formatClock(gameClockSeconds);
-  const team = getTeamById(currentTeamId);
-  if (!team) return;
-  team.players.forEach(p => {
-    p.minutesField = 0;
-    p.minutesBench = 0;
-  });
-  renderField();
-  renderBench();
-  updateSuggestions();
   autosaveState();
 }
 
-startClockBtn.addEventListener("click", startClock);
-pauseClockBtn.addEventListener("click", pauseClock);
-resetClockBtn.addEventListener("click", resetClock);
-
-function tickPlayerMinutes() {
+function tickMinutes() {
   const team = getTeamById(currentTeamId);
   if (!team) return;
+
   team.players.forEach(p => {
     if (p.onField) {
-      p.minutesField += 1 / 60; // seconds → minutes
+      p.minutesField += 1 / 60;
     } else {
       p.minutesBench += 1 / 60;
     }
   });
-  renderField();
+
   renderBench();
   updateSuggestions();
 }
 
-// ====== FATIGUE & SUGGESTIONS ======
-
-function computeFatigue(player) {
-  // Simple model: more minutes on field → higher fatigue, bench reduces it slightly
-  const fieldFactor = player.minutesField;
-  const benchFactor = player.minutesBench * 0.3;
-  return Math.max(0, fieldFactor - benchFactor);
-}
-
-function findBestPositionForPlayer(player, slots) {
-  const primary = player.positions.primary || [];
-  const secondary = player.positions.secondary || [];
-  const tertiary = player.positions.tertiary || [];
-
-  // Try primary
-  for (const pos of primary) {
-    const slot = slots.find(s => s.code === pos);
-    if (slot) return slot;
-  }
-  // Then secondary
-  for (const pos of secondary) {
-    const slot = slots.find(s => s.code === pos);
-    if (slot) return slot;
-  }
-  // Then tertiary
-  for (const pos of tertiary) {
-    const slot = slots.find(s => s.code === pos);
-    if (slot) return slot;
-  }
-  return null;
-}
-
-function updateSuggestions() {
-  const team = getTeamById(currentTeamId);
-  if (!team) return;
-
-  const onField = team.players.filter(p => p.onField);
-  const onBench = team.players.filter(p => !p.onField);
-
-  // Sort field players by fatigue descending
-  const fatigued = [...onField].sort(
-    (a, b) => computeFatigue(b) - computeFatigue(a)
-  );
-
-  const suggestions = [];
-
-  fatigued.forEach(player => {
-    const fatigue = computeFatigue(player);
-    if (fatigue < 10) return; // threshold; tweak as needed
-
-    // Find bench candidates who can play similar positions
-    const candidates = onBench
-      .map(b => ({
-        player: b,
-        score: computeSubFitScore(player, b)
-      }))
-      .filter(c => c.score > 0)
-      .sort((a, b) => b.score - a.score);
-
-    if (candidates.length === 0) return;
-
-    const best = candidates[0].player;
-    suggestions.push(
-      `Sub ${best.name} (#${best.number}) for ${player.name} (#${player.number}) — fatigue ${fatigue.toFixed(
-        1
-      )}`
-    );
-  });
-
-  suggestionListEl.innerHTML = "";
-  if (suggestions.length === 0) {
-    const li = document.createElement("li");
-    li.textContent = "No urgent subs suggested.";
-    suggestionListEl.appendChild(li);
-  } else {
-    suggestions.slice(0, 5).forEach(text => {
-      const li = document.createElement("li");
-      li.textContent = text;
-      suggestionListEl.appendChild(li);
-    });
-  }
-}
-
-function computeSubFitScore(fieldPlayer, benchPlayer) {
-  // Higher score = better fit
-  let score = 0;
-
-  const fieldPrimary = fieldPlayer.positions.primary || [];
-  const benchPrimary = benchPlayer.positions.primary || [];
-  const benchSecondary = benchPlayer.positions.secondary || [];
-
-  // Positional overlap
-  if (benchPrimary.some(p => fieldPrimary.includes(p))) score += 10;
-  if (benchSecondary.some(p => fieldPrimary.includes(p))) score += 6;
-
-  // Two-way flexibility
-  if (benchPlayer.twoWay) score += 3;
-
-  // Minutes balancing (less field time = better)
-  score += Math.max(0, 15 - benchPlayer.minutesField); // prefer underplayed
-
-  return score;
-}
-
-// ====== AUTOSAVE ======
+// =========================
+// AUTOSAVE
+// =========================
 
 function autosaveState() {
   const state = buildCurrentState();
@@ -776,36 +496,195 @@ function autosaveState() {
   saveTeamState(currentTeamId, state);
 }
 
-// ====== INIT ======
+// =========================
+// TEAM MANAGER VIEW
+// =========================
+
+function showMainView() {
+  mainViewEl.classList.remove("hidden");
+  rosterViewEl.classList.add("hidden");
+}
+
+function showRosterView() {
+  mainViewEl.classList.add("hidden");
+  rosterViewEl.classList.remove("hidden");
+  loadTeamIntoRosterView();
+}
+
+function loadTeamIntoRosterView() {
+  const team = getTeamById(currentTeamId);
+  if (!team) return;
+
+  teamNameInputEl.value = team.name;
+  formationInputEl.value = team.formation;
+
+  renderRosterList(team);
+  clearPlayerEditor();
+}
+
+function renderRosterList(team) {
+  rosterListEl.innerHTML = "";
+
+  team.players.forEach(p => {
+    const li = document.createElement("li");
+    li.dataset.playerId = p.id;
+    li.innerHTML = `
+      <span>#${p.number} ${p.name}</span>
+      <span class="role-tag">${p.positions.primary.join(", ")}</span>
+    `;
+    li.addEventListener("click", () => {
+      loadPlayerIntoEditor(p);
+    });
+    rosterListEl.appendChild(li);
+  });
+}
+
+function clearPlayerEditor() {
+  playerEditorTitleEl.textContent = "New Player";
+  playerNameInputEl.value = "";
+  playerNumberInputEl.value = "";
+  playerPrimaryInputEl.value = "";
+  playerSecondaryInputEl.value = "";
+  playerTertiaryInputEl.value = "";
+  playerTwoWayInputEl.checked = false;
+  playerNotesInputEl.value = "";
+  delete savePlayerBtn.dataset.editingId;
+}
+
+function loadPlayerIntoEditor(player) {
+  playerEditorTitleEl.textContent = `Edit Player #${player.number}`;
+  playerNameInputEl.value = player.name;
+  playerNumberInputEl.value = player.number;
+  playerPrimaryInputEl.value = player.positions.primary.join(",");
+  playerSecondaryInputEl.value = player.positions.secondary.join(",");
+  playerTertiaryInputEl.value = player.positions.tertiary.join(",");
+  playerTwoWayInputEl.checked = player.twoWay;
+  playerNotesInputEl.value = player.notes || "";
+  savePlayerBtn.dataset.editingId = player.id;
+}
+
+addPlayerBtn.addEventListener("click", () => {
+  clearPlayerEditor();
+});
+
+savePlayerBtn.addEventListener("click", () => {
+  const team = getTeamById(currentTeamId);
+  if (!team) return;
+
+  const name = playerNameInputEl.value.trim();
+  const number = parseInt(playerNumberInputEl.value.trim(), 10);
+  if (!name || isNaN(number)) return;
+
+  const primary = playerPrimaryInputEl.value.split(",").map(s => s.trim()).filter(Boolean);
+  const secondary = playerSecondaryInputEl.value.split(",").map(s => s.trim()).filter(Boolean);
+  const tertiary = playerTertiaryInputEl.value.split(",").map(s => s.trim()).filter(Boolean);
+
+  const twoWay = playerTwoWayInputEl.checked;
+  const notes = playerNotesInputEl.value || "";
+
+  const editingId = savePlayerBtn.dataset.editingId;
+
+  if (editingId) {
+    const player = team.players.find(p => p.id === editingId);
+    player.name = name;
+    player.number = number;
+    player.positions = { primary, secondary, tertiary };
+    player.twoWay = twoWay;
+    player.notes = notes;
+  } else {
+    team.players.push({
+      id: generateId(),
+      name,
+      number,
+      positions: { primary, secondary, tertiary },
+      twoWay,
+      minutesField: 0,
+      minutesBench: 0,
+      onField: false,
+      assignedPos: null,
+      notes
+    });
+  }
+
+  saveTeams();
+  renderRosterList(team);
+  renderField();
+  renderBench();
+  updateSuggestions();
+  autosaveState();
+  clearPlayerEditor();
+});
+
+deletePlayerBtn.addEventListener("click", () => {
+  const editingId = savePlayerBtn.dataset.editingId;
+  if (!editingId) return;
+
+  const team = getTeamById(currentTeamId);
+  team.players = team.players.filter(p => p.id !== editingId);
+
+  saveTeams();
+  renderRosterList(team);
+  renderField();
+  renderBench();
+  updateSuggestions();
+  autosaveState();
+  clearPlayerEditor();
+});
+
+saveRosterBtn.addEventListener("click", () => {
+  const team = getTeamById(currentTeamId);
+  if (!team) return;
+
+  team.name = teamNameInputEl.value.trim() || team.name;
+  team.formation = formationInputEl.value;
+
+  saveTeams();
+  renderTeamSelect();
+  renderField();
+  renderBench();
+  updateSuggestions();
+  autosaveState();
+  showMainView();
+});
+
+// =========================
+// EVENT WIRING
+// =========================
+
+teamSelectEl.addEventListener("change", () => {
+  currentTeamId = teamSelectEl.value;
+  const team = getTeamById(currentTeamId);
+  const state = loadTeamState(currentTeamId);
+  applyStateToTeam(team, state);
+  gameClockEl.textContent = formatClock(gameClockSeconds);
+  renderField();
+  renderBench();
+  updateSuggestions();
+});
+
+goToRosterBtn.addEventListener("click", showRosterView);
+backToGameBtn.addEventListener("click", showMainView);
+
+startClockBtn.addEventListener("click", startClock);
+pauseClockBtn.addEventListener("click", pauseClock);
+resetClockBtn.addEventListener("click", resetClock);
+
+// =========================
+// INIT
+// =========================
 
 function init() {
   loadTeams();
   renderTeamSelect();
 
-  // Load state for current team
   const team = getTeamById(currentTeamId);
-  if (team) {
-    const state = loadTeamState(currentTeamId);
-    applyStateToTeam(team, state);
-  }
+  const state = loadTeamState(currentTeamId);
+  applyStateToTeam(team, state);
 
   gameClockEl.textContent = formatClock(gameClockSeconds);
   renderField();
   renderBench();
   updateSuggestions();
-
-  teamSelectEl.addEventListener("change", () => {
-    currentTeamId = teamSelectEl.value;
-    const team = getTeamById(currentTeamId);
-    if (team) {
-      const state = loadTeamState(currentTeamId);
-      applyStateToTeam(team, state);
-    }
-    gameClockEl.textContent = formatClock(gameClockSeconds);
-    renderField();
-    renderBench();
-    updateSuggestions();
-  });
 }
 
 init();
