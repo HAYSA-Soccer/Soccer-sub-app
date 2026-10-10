@@ -6,12 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
   <header class="app-header">
     <div class="header-left">
       <select id="teamSelect"></select>
       <button id="addTeamBtn" class="btn small">+ Team</button>
     </div>
+
     <div class="header-right">
       <span id="gameClock">00:00</span>
       <button id="startClockBtn" class="btn small">Start</button>
@@ -22,9 +24,7 @@
 
   <main class="app-main">
     <section class="field-container">
-      <div id="field" class="field">
-        <!-- Positions rendered by JS -->
-      </div>
+      <div id="field" class="field"></div>
     </section>
 
     <section class="bench-container">
@@ -32,9 +32,7 @@
         <span>Bench</span>
         <button id="editRosterBtn" class="btn small">Roster</button>
       </div>
-      <div id="bench" class="bench">
-        <!-- Bench players rendered by JS -->
-      </div>
+      <div id="bench" class="bench"></div>
 
       <div class="suggestions">
         <h3>Sub Suggestions</h3>
@@ -43,13 +41,14 @@
     </section>
   </main>
 
-  <!-- Player detail modal -->
+  <!-- Player Modal -->
   <div id="playerModal" class="modal hidden">
     <div class="modal-content">
       <div class="modal-header">
         <h2 id="modalPlayerName"></h2>
         <button id="closePlayerModal" class="btn small">✕</button>
       </div>
+
       <div class="modal-body">
         <p><strong>Number:</strong> <span id="modalPlayerNumber"></span></p>
         <p><strong>Primary:</strong> <span id="modalPlayerPrimary"></span></p>
@@ -61,24 +60,27 @@
         <p><strong>Notes:</strong></p>
         <textarea id="modalNotes"></textarea>
       </div>
+
       <div class="modal-footer">
         <button id="savePlayerNotes" class="btn">Save Notes</button>
       </div>
     </div>
   </div>
 
-  <!-- Roster editor modal -->
+  <!-- Roster Modal -->
   <div id="rosterModal" class="modal hidden">
     <div class="modal-content large">
       <div class="modal-header">
         <h2>Roster Editor</h2>
         <button id="closeRosterModal" class="btn small">✕</button>
       </div>
+
       <div class="modal-body roster-body">
         <div class="team-meta">
           <label>Team Name
             <input id="teamNameInput" type="text" />
           </label>
+
           <label>Formation
             <select id="formationInput">
               <option value="7v7-2-3-1">7v7: 2-3-1</option>
@@ -95,9 +97,11 @@
 
         <div class="player-editor">
           <h3>Add / Edit Player</h3>
+
           <label>Name
             <input id="playerNameInput" type="text" />
           </label>
+
           <label>Number
             <input id="playerNumberInput" type="number" />
           </label>
@@ -105,9 +109,11 @@
           <label>Primary Positions (comma separated)
             <input id="playerPrimaryInput" type="text" placeholder="ST,RW,CAM" />
           </label>
+
           <label>Secondary Positions (comma separated)
             <input id="playerSecondaryInput" type="text" placeholder="LB,RB" />
           </label>
+
           <label>Tertiary Positions (comma separated)
             <input id="playerTertiaryInput" type="text" placeholder="CB" />
           </label>
@@ -127,6 +133,7 @@
           </div>
         </div>
       </div>
+
       <div class="modal-footer">
         <button id="saveRosterBtn" class="btn">Save Roster</button>
       </div>
