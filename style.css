@@ -8,52 +8,26 @@
   --muted: #b0bec5;
 }
 
-* {
-  box-sizing: border-box;
-}
-
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: var(--bg);
   color: var(--text);
+  font-family: system-ui, sans-serif;
 }
 
 .app-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   padding: 8px 12px;
-  border-bottom: 1px solid #263238;
   background: #111827;
-}
-
-.header-left,
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-#teamSelect {
-  padding: 4px 8px;
-  border-radius: 4px;
-  border: 1px solid #37474f;
-  background: #1f2933;
-  color: var(--text);
-}
-
-#gameClock {
-  font-weight: 600;
-  font-size: 1.1rem;
+  border-bottom: 1px solid #263238;
 }
 
 .btn {
+  background: var(--accent);
+  border: none;
   padding: 6px 10px;
   border-radius: 4px;
-  border: none;
-  background: var(--accent);
-  color: #000;
   font-weight: 600;
   cursor: pointer;
 }
@@ -65,18 +39,10 @@ body {
 
 .btn.danger {
   background: var(--danger);
-  color: #fff;
 }
-
-.btn:active {
-  transform: scale(0.97);
-}
-
-/* Layout */
 
 .app-main {
   display: flex;
-  flex-direction: row;
   height: calc(100vh - 48px);
 }
 
@@ -85,26 +51,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 8px;
 }
-
-.bench-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 8px;
-  border-left: 1px solid #263238;
-  background: #111827;
-}
-
-.bench-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
-}
-
-/* Field */
 
 .field {
   position: relative;
@@ -112,37 +59,9 @@ body {
   max-width: 480px;
   aspect-ratio: 2 / 3;
   background: var(--field-green);
+  border: 2px solid var(--line);
   border-radius: 12px;
-  border: 2px solid var(--line);
-  overflow: hidden;
 }
-
-.field::before,
-.field::after {
-  content: "";
-  position: absolute;
-  border: 2px solid var(--line);
-}
-
-.field::before {
-  /* center line */
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  height: 100%;
-}
-
-.field::after {
-  /* center circle */
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-/* Position slots */
 
 .position-slot {
   position: absolute;
@@ -155,10 +74,13 @@ body {
   align-items: center;
   color: var(--line);
   font-size: 0.7rem;
-  text-align: center;
 }
 
-/* Player tokens */
+.position-slot.highlight {
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 10px var(--accent);
+}
 
 .player-token {
   position: absolute;
@@ -166,15 +88,31 @@ body {
   height: 52px;
   border-radius: 50%;
   background: #1e88e5;
-  color: #fff;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-size: 0.7rem;
-  text-align: center;
-  cursor: grab;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+.player-token.selected {
+  outline: 3px solid var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+
+.bench-container {
+  flex: 1;
+  background: #111827;
+  border-left: 1px solid #263238;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.bench {
+  flex: 1;
+  overflow-y: auto;
 }
 
 .player-token.bench {
@@ -183,68 +121,18 @@ body {
   background: #546e7a;
 }
 
-.player-token.offense {
-  background: #43a047;
-}
-
-.player-token.defense {
-  background: #fb8c00;
-}
-
-.player-token.gk {
-  background: #8e24aa;
-}
-
-.player-name {
-  font-weight: 600;
-}
-
-.player-number {
-  font-size: 0.7rem;
-  opacity: 0.8;
-}
-
-/* Bench */
-
-.bench {
-  flex: 1;
-  overflow-y: auto;
-  padding-right: 4px;
-}
-
 .suggestions {
-  margin-top: 8px;
   border-top: 1px solid #263238;
   padding-top: 6px;
 }
 
-.suggestions h3 {
-  margin: 0 0 4px 0;
-  font-size: 0.9rem;
-}
-
-#suggestionList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  font-size: 0.8rem;
-}
-
-#suggestionList li {
-  margin-bottom: 4px;
-  color: var(--muted);
-}
-
-/* Modal */
-
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0,0,0,0.6);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 50;
 }
 
 .modal.hidden {
@@ -253,109 +141,15 @@ body {
 
 .modal-content {
   background: #1f2933;
-  border-radius: 8px;
   padding: 12px;
+  border-radius: 8px;
   width: 90%;
   max-width: 420px;
-  max-height: 90vh;
-  overflow-y: auto;
 }
 
 .modal-content.large {
   max-width: 900px;
 }
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.modal-body {
-  font-size: 0.9rem;
-}
-
-.modal-body p {
-  margin: 4px 0;
-}
-
-.modal-body textarea {
-  width: 100%;
-  min-height: 60px;
-  resize: vertical;
-  background: #111827;
-  color: var(--text);
-  border: 1px solid #37474f;
-  border-radius: 4px;
-  padding: 4px;
-}
-
-.modal-footer {
-  margin-top: 8px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-/* Roster editor layout */
-
-.roster-body {
-  display: grid;
-  grid-template-columns: 1.2fr 1.2fr 1.6fr;
-  gap: 8px;
-}
-
-.team-meta label,
-.player-editor label {
-  display: block;
-  font-size: 0.8rem;
-  margin-bottom: 4px;
-}
-
-.team-meta input,
-.player-editor input,
-.player-editor textarea,
-.team-meta select {
-  width: 100%;
-  padding: 4px;
-  border-radius: 4px;
-  border: 1px solid #37474f;
-  background: #111827;
-  color: var(--text);
-  font-size: 0.85rem;
-}
-
-.roster-list {
-  border-left: 1px solid #263238;
-  padding-left: 6px;
-}
-
-#rosterList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  font-size: 0.8rem;
-}
-
-#rosterList li {
-  margin-bottom: 4px;
-  padding: 4px;
-  border-radius: 4px;
-  background: #111827;
-  cursor: pointer;
-}
-
-#rosterList li.active {
-  background: #263238;
-}
-
-.player-editor-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 8px;
-}
-
-/* Mobile */
 
 @media (max-width: 768px) {
   .app-main {
@@ -363,18 +157,12 @@ body {
   }
 
   .field-container {
-    flex: none;
     height: 55vh;
   }
 
   .bench-container {
-    flex: none;
     height: 45vh;
     border-left: none;
     border-top: 1px solid #263238;
-  }
-
-  .field {
-    max-width: 360px;
   }
 }
