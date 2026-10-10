@@ -503,6 +503,38 @@ function handleBenchDropZone() {
 }
 
 
+function handleBenchTap(benchPlayerId) {
+  const team = getCurrentTeam();
+  if (!team) return;
+
+  // CASE 1: No one selected → select this bench player
+  if (!selectedPlayerId) {
+    selectedPlayerId = benchPlayerId;
+    renderBench();
+    renderField();
+    return;
+  }
+
+  const selectedPlayer = getPlayerById(selectedPlayerId);
+
+  // CASE 2: Selected player is ON FIELD → send them to bench
+  if (selectedPlayer && selectedPlayer.onField) {
+    selectedPlayer.onField = false;
+    selectedPlayer.assignedPos = null;
+    selectedPlayerId = null;
+
+    renderBench();
+    renderField();
+    renderSuggestions();
+    return;
+  }
+
+  // CASE 3: Selected player is already on bench → switch selection
+  selectedPlayerId = benchPlayerId;
+  renderBench();
+  renderField();
+}
+
 
 function renderBench() {
   const team = getCurrentTeam();
@@ -536,6 +568,16 @@ function renderBench() {
     });
 }
 
+// Bench drop zone: tap empty bench area to send selected field player to bench
+benchEl.parentElement.addEventListener("touchstart", (e) => {
+  if (e.target.classList.contains("player-token")) return;
+  handleBenchDropZone();
+});
+
+benchEl.parentElement.addEventListener("click", (e) => {
+  if (e.target.classList.contains("player-token")) return;
+  handleBenchDropZone();
+});
 
 // ===============================
 // SUGGESTIONS (SIMPLE VERSION)
