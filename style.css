@@ -230,3 +230,9 @@ body {
     border-top: 1px solid #263238;
   }
 }
+
+
+.player-token .minutes {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
