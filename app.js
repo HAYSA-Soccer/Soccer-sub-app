@@ -95,6 +95,8 @@ function loadTeams() {
         }
         if (typeof p.onField !== "boolean") p.onField = false;
         if (!("assignedPos" in p)) p.assignedPos = null;
+        if (typeof p.minutesField !== "number") p.minutesField = 0;
+        if (typeof p.minutesBench !== "number") p.minutesBench = 0;
       });
     });
   } else {
@@ -304,6 +306,7 @@ deletePlayerBtn.addEventListener("click", () => {
 // ===============================
 // CLOCK
 // ===============================
+
 function updatePlayerMinutes() {
   const team = getCurrentTeam();
   if (!team) return;
@@ -316,10 +319,8 @@ function updatePlayerMinutes() {
     }
   });
 
-  saveTeams(); // persist every second
+  saveTeams();
 }
-
-
 
 function formatClock(seconds) {
   const m = Math.floor(seconds / 60);
@@ -336,9 +337,8 @@ startClockBtn.addEventListener("click", () => {
   clockInterval = setInterval(() => {
     gameClockSeconds += 1;
     updateClockDisplay();
-    updatePlayerMinutes();   // <-- NEW
+    updatePlayerMinutes();
   }, 1000);
-
 });
 
 pauseClockBtn.addEventListener("click", () => {
@@ -403,9 +403,7 @@ function renderField() {
 
   const slots = FORMATION_SLOTS[team.formation] || FORMATION_SLOTS["7v7-2-3-1"];
 
-  // ============================
   // DRAW POSITION SLOTS
-  // ============================
   slots.forEach(slot => {
     const div = document.createElement("div");
     div.className = "position-slot";
@@ -456,9 +454,7 @@ function renderField() {
     fieldEl.appendChild(div);
   });
 
-  // ============================
   // DRAW PLAYERS ALREADY ON FIELD
-  // ============================
   team.players
     .filter(p => p.onField && p.assignedPos)
     .forEach(player => {
@@ -479,22 +475,16 @@ function renderField() {
         </div>
       `;
 
-
-
-      // MOBILE TAP: select field player
       token.addEventListener("touchstart", (e) => {
         e.stopPropagation();
         e.preventDefault();
-
         selectedPlayerId = player.id;
         renderField();
         renderBench();
       });
 
-      // DESKTOP CLICK: select field player
       token.addEventListener("click", (e) => {
         e.stopPropagation();
-
         selectedPlayerId = player.id;
         renderField();
         renderBench();
@@ -597,24 +587,8 @@ function renderBench() {
     });
 }
 
-
-
-// Bench drop zone: tap empty bench area to send selected field player to bench
-benchEl.parentElement.addEventListener("touchstart", (e) => {
-  if (e.target.classList.contains("player-token")) return;
-  e.stopPropagation();
-  e.preventDefault();
-  handleBenchDropZone();
-});
-
-benchEl.parentElement.addEventListener("click", (e) => {
-  if (e.target.classList.contains("player-token")) return;
-  e.stopPropagation();
-  handleBenchDropZone();
-});
-
 // ===============================
-// SUGGESTIONS (SIMPLE VERSION)
+// SUGGESTIONS
 // ===============================
 
 function renderSuggestions() {
@@ -662,6 +636,23 @@ function init() {
   renderBench();
   renderSuggestions();
   showGameScreen();
+
+  // Bench drop zone listeners (safe: only if benchEl exists)
+  if (benchEl && benchEl.parentElement) {
+    benchEl.parentElement.addEventListener("touchstart", (e) => {
+      if (e.target.classList.contains("player-token")) return;
+      e.stopPropagation();
+      e.preventDefault();
+      handleBenchDropZone();
+    });
+
+    benchEl.parentElement.addEventListener("click", (e) => {
+      if (e.target.classList.contains("player-token")) return;
+      e.stopPropagation();
+      handleBenchDropZone();
+    });
+  }
 }
 
-init();
+// Make sure DOM is ready before init runs
+document.addEventListener("DOMContentLoaded", init);
