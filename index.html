@@ -11,7 +11,7 @@
   <header class="app-header">
     <div class="header-left">
       <select id="teamSelect"></select>
-      <button id="addTeamBtn" class="btn small">+ Team</button>
+      <button id="goToRosterBtn" class="btn small">Team Manager</button>
     </div>
 
     <div class="header-right">
@@ -22,7 +22,8 @@
     </div>
   </header>
 
-  <main class="app-main">
+  <!-- MAIN GAME VIEW -->
+  <main id="mainView" class="app-main">
     <section class="field-container">
       <div id="field" class="field"></div>
     </section>
@@ -30,7 +31,6 @@
     <section class="bench-container">
       <div class="bench-header">
         <span>Bench</span>
-        <button id="editRosterBtn" class="btn small">Roster</button>
       </div>
       <div id="bench" class="bench"></div>
 
@@ -41,104 +41,80 @@
     </section>
   </main>
 
-  <!-- Player Modal -->
-  <div id="playerModal" class="modal hidden">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2 id="modalPlayerName"></h2>
-        <button id="closePlayerModal" class="btn small">✕</button>
+  <!-- TEAM MANAGER VIEW -->
+  <main id="rosterView" class="roster-main hidden">
+    <header class="roster-header">
+      <button id="backToGameBtn" class="btn small">← Back to Game</button>
+      <h2>Team Manager</h2>
+    </header>
+
+    <section class="roster-top">
+      <div class="team-meta">
+        <label>Team Name
+          <input id="teamNameInput" type="text" />
+        </label>
+
+        <label>Formation
+          <select id="formationInput">
+            <option value="7v7-2-3-1">7v7: 2-3-1</option>
+            <option value="9v9-3-3-2">9v9: 3-3-2</option>
+            <option value="11v11-4-3-3">11v11: 4-3-3</option>
+          </select>
+        </label>
       </div>
 
-      <div class="modal-body">
-        <p><strong>Number:</strong> <span id="modalPlayerNumber"></span></p>
-        <p><strong>Primary:</strong> <span id="modalPlayerPrimary"></span></p>
-        <p><strong>Secondary:</strong> <span id="modalPlayerSecondary"></span></p>
-        <p><strong>Tertiary:</strong> <span id="modalPlayerTertiary"></span></p>
-        <p><strong>Minutes on field:</strong> <span id="modalMinutesField"></span></p>
-        <p><strong>Minutes on bench:</strong> <span id="modalMinutesBench"></span></p>
-        <p><strong>Fatigue:</strong> <span id="modalFatigue"></span></p>
-        <p><strong>Notes:</strong></p>
-        <textarea id="modalNotes"></textarea>
+      <button id="addPlayerBtn" class="btn">+ Add Player</button>
+    </section>
+
+    <section class="roster-content">
+      <div class="roster-list">
+        <h3>Players</h3>
+        <ul id="rosterList"></ul>
       </div>
 
-      <div class="modal-footer">
-        <button id="savePlayerNotes" class="btn">Save Notes</button>
-      </div>
-    </div>
-  </div>
+      <div class="player-editor">
+        <h3 id="playerEditorTitle">New Player</h3>
 
-  <!-- Roster Modal -->
-  <div id="rosterModal" class="modal hidden">
-    <div class="modal-content large">
-      <div class="modal-header">
-        <h2>Roster Editor</h2>
-        <button id="closeRosterModal" class="btn small">✕</button>
-      </div>
+        <label>Name
+          <input id="playerNameInput" type="text" />
+        </label>
 
-      <div class="modal-body roster-body">
-        <div class="team-meta">
-          <label>Team Name
-            <input id="teamNameInput" type="text" />
-          </label>
+        <label>Number
+          <input id="playerNumberInput" type="number" />
+        </label>
 
-          <label>Formation
-            <select id="formationInput">
-              <option value="7v7-2-3-1">7v7: 2-3-1</option>
-              <option value="9v9-3-3-2">9v9: 3-3-2</option>
-              <option value="11v11-4-3-3">11v11: 4-3-3</option>
-            </select>
-          </label>
-        </div>
+        <label>Primary Positions (comma separated)
+          <input id="playerPrimaryInput" type="text" placeholder="ST,RW,CAM" />
+        </label>
 
-        <div class="roster-list">
-          <h3>Players</h3>
-          <ul id="rosterList"></ul>
-        </div>
+        <label>Secondary Positions (comma separated)
+          <input id="playerSecondaryInput" type="text" placeholder="LB,RB" />
+        </label>
 
-        <div class="player-editor">
-          <h3>Add / Edit Player</h3>
+        <label>Tertiary Positions (comma separated)
+          <input id="playerTertiaryInput" type="text" placeholder="CB" />
+        </label>
 
-          <label>Name
-            <input id="playerNameInput" type="text" />
-          </label>
+        <label class="checkbox-row">
+          <input id="playerTwoWayInput" type="checkbox" />
+          <span>Can play offense & defense equally</span>
+        </label>
 
-          <label>Number
-            <input id="playerNumberInput" type="number" />
-          </label>
+        <label>Notes
+          <textarea id="playerNotesInput"></textarea>
+        </label>
 
-          <label>Primary Positions (comma separated)
-            <input id="playerPrimaryInput" type="text" placeholder="ST,RW,CAM" />
-          </label>
-
-          <label>Secondary Positions (comma separated)
-            <input id="playerSecondaryInput" type="text" placeholder="LB,RB" />
-          </label>
-
-          <label>Tertiary Positions (comma separated)
-            <input id="playerTertiaryInput" type="text" placeholder="CB" />
-          </label>
-
-          <label>
-            <input id="playerTwoWayInput" type="checkbox" />
-            Can play offense & defense equally
-          </label>
-
-          <label>Notes
-            <textarea id="playerNotesInput"></textarea>
-          </label>
-
-          <div class="player-editor-actions">
-            <button id="savePlayerBtn" class="btn">Save Player</button>
-            <button id="deletePlayerBtn" class="btn danger">Delete Player</button>
-          </div>
+        <div class="player-editor-actions">
+          <button id="savePlayerBtn" class="btn">Save Player</button>
+          <button id="deletePlayerBtn" class="btn danger">Delete Player</button>
         </div>
       </div>
+    </section>
 
-      <div class="modal-footer">
-        <button id="saveRosterBtn" class="btn">Save Roster</button>
-      </div>
-    </div>
-  </div>
+    <footer class="roster-footer">
+      <button id="saveRosterBtn" class="btn">Save Team</button>
+    </footer>
+  </main>
 
   <script src="app.js"></script>
 </body>
