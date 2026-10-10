@@ -136,11 +136,15 @@ body {
   box-shadow: 0 0 10px var(--accent);
 }
 
+/* ===========================
+   FIXED PLAYER TOKEN
+   =========================== */
+
 .player-token {
   position: absolute;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
+  width: 60px;          /* slightly bigger */
+  height: 60px;
+  border-radius: 50%;   /* keep circular */
   background: #1e88e5;
   display: flex;
   flex-direction: column;
@@ -148,27 +152,16 @@ body {
   align-items: center;
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-  font-size: 0.7rem;
   text-align: center;
+
+  /* typography */
+  padding: 4px;
+  font-size: 0.8rem;
 }
 
 .player-token.selected {
   outline: 3px solid var(--accent);
   box-shadow: 0 0 10px var(--accent);
-}
-
-.bench-container {
-  flex: 1;
-  background: #111827;
-  border-left: 1px solid #263238;
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-}
-
-.bench {
-  flex: 1;
-  overflow-y: auto;
 }
 
 .player-token.bench {
@@ -177,9 +170,39 @@ body {
   background: #546e7a;
 }
 
-.suggestions {
-  border-top: 1px solid #263238;
-  padding-top: 6px;
+/* ===========================
+   TOKEN TEXT
+   =========================== */
+
+.player-number {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.player-name {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-top: 2px;
+}
+
+.player-token .minutes {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+.minutes {
+  font-size: 0.75rem;
+  margin-top: 3px;
+  opacity: 0.85;
+}
+
+.minutes span {
+  padding: 0 2px;
+}
+
+.minutes .active {
+  font-weight: bold;
+  color: #007bff;
 }
 
 /* ===========================
@@ -229,42 +252,4 @@ body {
     border-left: none;
     border-top: 1px solid #263238;
   }
-}
-
-
-.player-token .minutes {
-  font-size: 0.7rem;
-  opacity: 0.7;
-}
-
-.player-token {
-  padding: 6px 8px;
-  border-radius: 6px;
-  font-size: 0.9rem;
-}
-
-.player-number {
-  font-weight: bold;
-  font-size: 1rem;
-}
-
-.player-name {
-  font-weight: 600;
-  font-size: 1rem;
-  margin-top: 2px;
-}
-
-.minutes {
-  font-size: 0.75rem;
-  margin-top: 3px;
-  opacity: 0.85;
-}
-
-.minutes span {
-  padding: 0 2px;
-}
-
-.minutes .active {
-  font-weight: bold;
-  color: #007bff; /* blue highlight */
 }
