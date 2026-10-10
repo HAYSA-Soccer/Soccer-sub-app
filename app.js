@@ -582,14 +582,12 @@ function renderBench() {
         token.classList.add("selected");
       }
 
-      // MOBILE TAP
       token.addEventListener("touchstart", (e) => {
         e.stopPropagation();
         e.preventDefault();
         handleBenchTap(player.id);
       });
 
-      // DESKTOP CLICK
       token.addEventListener("click", (e) => {
         e.stopPropagation();
         handleBenchTap(player.id);
@@ -598,6 +596,7 @@ function renderBench() {
       benchEl.appendChild(token);
     });
 }
+
 
 
 // Bench drop zone: tap empty bench area to send selected field player to bench
