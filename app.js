@@ -304,6 +304,22 @@ deletePlayerBtn.addEventListener("click", () => {
 // ===============================
 // CLOCK
 // ===============================
+function updatePlayerMinutes() {
+  const team = getCurrentTeam();
+  if (!team) return;
+
+  team.players.forEach(player => {
+    if (player.onField) {
+      player.minutesField += 1;
+    } else {
+      player.minutesBench += 1;
+    }
+  });
+
+  saveTeams(); // persist every second
+}
+
+
 
 function formatClock(seconds) {
   const m = Math.floor(seconds / 60);
@@ -320,7 +336,9 @@ startClockBtn.addEventListener("click", () => {
   clockInterval = setInterval(() => {
     gameClockSeconds += 1;
     updateClockDisplay();
+    updatePlayerMinutes();   // <-- NEW
   }, 1000);
+
 });
 
 pauseClockBtn.addEventListener("click", () => {
