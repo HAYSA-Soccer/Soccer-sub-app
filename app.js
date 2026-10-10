@@ -54,8 +54,14 @@ const playerNotesInputEl = document.getElementById("playerNotesInput");
 const savePlayerBtn = document.getElementById("savePlayerBtn");
 const deletePlayerBtn = document.getElementById("deletePlayerBtn");
 
-let editingPlayerId = null;
-let selectedPlayerId = null;
+let editingPlayerId = null;let selectedPlayerId = null;
+
+function selectPlayer(playerId) {
+  selectedPlayerId = playerId;
+  renderField();
+  renderBench();
+}
+
 
 // ===============================
 // UTIL
@@ -386,7 +392,9 @@ function renderField() {
 
   const slots = FORMATION_SLOTS[team.formation] || FORMATION_SLOTS["7v7-2-3-1"];
 
-  // Draw slots
+  // ============================
+  // DRAW POSITION SLOTS
+  // ============================
   slots.forEach(slot => {
     const div = document.createElement("div");
     div.className = "position-slot";
@@ -400,20 +408,33 @@ function renderField() {
       div.classList.add("highlight");
     }
 
-    // Click to place selected player
+    // --- MOBILE TAP ---
+    div.addEventListener("touchstart", () => {
+      if (!selectedPlayerId) return;
+
+      const player = getPlayerById(selectedPlayerId);
+      if (!player) return;
+
+      player.onField = true;
+      player.assignedPos = slot.id;
+
+      selectedPlayerId = null;
+      renderField();
+      renderBench();
+      renderSuggestions();
+    });
+
+    // --- DESKTOP CLICK ---
     div.addEventListener("click", () => {
       if (!selectedPlayerId) return;
 
       const player = getPlayerById(selectedPlayerId);
       if (!player) return;
 
-      // Assign player to this slot
       player.onField = true;
       player.assignedPos = slot.id;
 
-      // Clear selection
       selectedPlayerId = null;
-
       renderField();
       renderBench();
       renderSuggestions();
@@ -422,7 +443,9 @@ function renderField() {
     fieldEl.appendChild(div);
   });
 
-  // Draw players already on field
+  // ============================
+  // DRAW PLAYERS ALREADY ON FIELD
+  // ============================
   team.players
     .filter(p => p.onField && p.assignedPos)
     .forEach(player => {
@@ -435,20 +458,24 @@ function renderField() {
       token.style.top = `${slot.y}%`;
       token.innerHTML = `<div>#${player.number}</div><div>${player.name}</div>`;
 
-      // Tap field player → send back to bench
-      token.addEventListener("click", () => {
-        player.onField = false;
-        player.assignedPos = null;
-        selectedPlayerId = null;
-
+      // --- MOBILE TAP: select field player ---
+      token.addEventListener("touchstart", () => {
+        selectedPlayerId = player.id;
         renderField();
         renderBench();
-        renderSuggestions();
+      });
+
+      // --- DESKTOP CLICK: select field player ---
+      token.addEventListener("click", () => {
+        selectedPlayerId = player.id;
+        renderField();
+        renderBench();
       });
 
       fieldEl.appendChild(token);
     });
 }
+
 
 function renderBench() {
   const team = getCurrentTeam();
@@ -468,6 +495,14 @@ function renderBench() {
         token.classList.add("selected");
       }
 
+      // MOBILE TAP
+      token.addEventListener("touchstart", () => {
+        selectedPlayerId = player.id;
+        renderBench();
+        renderField();
+      });
+
+      // DESKTOP CLICK
       token.addEventListener("click", () => {
         selectedPlayerId = player.id;
         renderBench();
@@ -477,6 +512,7 @@ function renderBench() {
       benchEl.appendChild(token);
     });
 }
+
 
 // ===============================
 // SUGGESTIONS (SIMPLE VERSION)
