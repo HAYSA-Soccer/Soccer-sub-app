@@ -8,48 +8,54 @@
 </head>
 
 <body>
-  <header class="app-header">
-    <div class="header-left">
-      <select id="teamSelect"></select>
-      <button id="goToRosterBtn" class="btn small">Team Manager</button>
-    </div>
 
-    <div class="header-right">
-      <span id="gameClock">00:00</span>
-      <button id="startClockBtn" class="btn small">Start</button>
-      <button id="pauseClockBtn" class="btn small">Pause</button>
-      <button id="resetClockBtn" class="btn small">Reset</button>
-    </div>
-  </header>
+  <!-- ========================= -->
+  <!-- SCREEN 1: GAME SCREEN     -->
+  <!-- ========================= -->
+  <main id="gameScreen" class="screen">
+    <header class="screen-header">
+      <div class="left">
+        <select id="teamSelect"></select>
+        <button id="openTeamManager" class="btn small">Team Manager</button>
+      </div>
+      <div class="right">
+        <span id="gameClock">00:00</span>
+        <button id="startClockBtn" class="btn small">Start</button>
+        <button id="pauseClockBtn" class="btn small">Pause</button>
+        <button id="resetClockBtn" class="btn small">Reset</button>
+      </div>
+    </header>
 
-  <!-- MAIN GAME VIEW -->
-  <main id="mainView" class="app-main">
-    <section class="field-container">
-      <div id="field" class="field"></div>
+    <section class="screen-content game-layout">
+      <div class="field-container">
+        <div id="field" class="field"></div>
+      </div>
+
+      <div class="bench-container">
+        <div class="bench-header">Bench</div>
+        <div id="bench" class="bench"></div>
+
+        <div class="suggestions">
+          <h3>Sub Suggestions</h3>
+          <ul id="suggestionList"></ul>
+        </div>
+      </div>
     </section>
 
-    <section class="bench-container">
-      <div class="bench-header">
-        <span>Bench</span>
-      </div>
-      <div id="bench" class="bench"></div>
-
-      <div class="suggestions">
-        <h3>Sub Suggestions</h3>
-        <ul id="suggestionList"></ul>
-      </div>
-    </section>
+    <footer class="screen-footer"></footer>
   </main>
 
-  <!-- TEAM MANAGER VIEW -->
-  <main id="rosterView" class="roster-main hidden">
-    <header class="roster-header">
-      <button id="backToGameBtn" class="btn small">← Back to Game</button>
+  <!-- ========================= -->
+  <!-- SCREEN 2: TEAM MANAGER    -->
+  <!-- ========================= -->
+  <main id="teamManagerScreen" class="screen hidden">
+    <header class="screen-header">
+      <button id="backToGame" class="btn small">← Back</button>
       <h2>Team Manager</h2>
     </header>
 
-    <section class="roster-top">
-      <div class="team-meta">
+    <section class="screen-content">
+      <div class="team-meta card">
         <label>Team Name
           <input id="teamNameInput" type="text" />
         </label>
@@ -61,19 +67,32 @@
             <option value="11v11-4-3-3">11v11: 4-3-3</option>
           </select>
         </label>
+
+        <button id="addPlayerBtn" class="btn">+ Add Player</button>
       </div>
 
-      <button id="addPlayerBtn" class="btn">+ Add Player</button>
-    </section>
-
-    <section class="roster-content">
-      <div class="roster-list">
+      <div class="roster-list card">
         <h3>Players</h3>
         <ul id="rosterList"></ul>
       </div>
+    </section>
 
-      <div class="player-editor">
-        <h3 id="playerEditorTitle">New Player</h3>
+    <footer class="screen-footer">
+      <button id="saveTeamBtn" class="btn">Save Team</button>
+    </footer>
+  </main>
+
+  <!-- ========================= -->
+  <!-- SCREEN 3: PLAYER EDITOR   -->
+  <!-- ========================= -->
+  <main id="playerEditorScreen" class="screen hidden">
+    <header class="screen-header">
+      <button id="backToTeamManager" class="btn small">← Back</button>
+      <h2 id="playerEditorTitle">New Player</h2>
+    </header>
+
+    <section class="screen-content">
+      <div class="player-editor card">
 
         <label>Name
           <input id="playerNameInput" type="text" />
@@ -104,15 +123,12 @@
           <textarea id="playerNotesInput"></textarea>
         </label>
 
-        <div class="player-editor-actions">
-          <button id="savePlayerBtn" class="btn">Save Player</button>
-          <button id="deletePlayerBtn" class="btn danger">Delete Player</button>
-        </div>
       </div>
     </section>
 
-    <footer class="roster-footer">
-      <button id="saveRosterBtn" class="btn">Save Team</button>
+    <footer class="screen-footer">
+      <button id="savePlayerBtn" class="btn">Save Player</button>
+      <button id="deletePlayerBtn" class="btn danger">Delete Player</button>
     </footer>
   </main>
 
