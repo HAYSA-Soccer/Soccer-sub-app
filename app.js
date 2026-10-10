@@ -472,8 +472,9 @@ function renderField() {
       token.innerHTML = `
         <div>#${player.number}</div>
         <div>${player.name}</div>
-        <div class="minutes">${player.minutesField} min</div>
+        <div class="minutes">B: ${player.minutesBench} | F: ${player.minutesField}</div>
       `;
+
 
       // MOBILE TAP: select field player
       token.addEventListener("touchstart", (e) => {
