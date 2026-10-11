@@ -11,7 +11,7 @@ let clockInterval = null;
 
 let editingPlayerId = null;
 let selectedPlayerId = null;
-let onDeckPlayerId = null; // ⭐ ON-DECK tracking
+let onDeckPlayerId = null; // ON-DECK tracking
 
 // ===============================
 // DOM ELEMENTS
@@ -56,9 +56,9 @@ const playerTertiaryInputEl = document.getElementById("playerTertiaryInput");
 const playerTwoWayInputEl = document.getElementById("playerTwoWayInput");
 const playerNotesInputEl = document.getElementById("playerNotesInput");
 const savePlayerBtn = document.getElementById("savePlayerBtn");
-const deletePlayerBtn = document.getElementById("deletePlayerBtn");
+const deletePlayerBtn = document.getElementById("deletePlayerBtn";
 
-// ⭐ NEW: attack/defense inputs (assumed present in HTML)
+// Attack/Defense inputs
 const playerAttackInputEl = document.getElementById("playerAttackInput");
 const playerDefenseInputEl = document.getElementById("playerDefenseInput");
 
@@ -103,11 +103,9 @@ function loadTeams() {
         if (typeof p.minutesField !== "number") p.minutesField = 0;
         if (typeof p.minutesBench !== "number") p.minutesBench = 0;
 
-        // ⭐ NEW: attack/defense weighting
         if (typeof p.attackRating !== "number") p.attackRating = 0.5;
         if (typeof p.defenseRating !== "number") p.defenseRating = 0.5;
 
-        // ⭐ NEW: target position for ON-DECK
         if (!("targetPosition" in p)) p.targetPosition = null;
       });
     });
@@ -115,7 +113,7 @@ function loadTeams() {
     teams = [
       {
         id: "default",
-        name: "Team",
+        name: "U12 Travel",
         formation: "7v7-2-3-1",
         players: []
       }
@@ -214,7 +212,6 @@ saveTeamBtn.addEventListener("click", () => {
   const team = getCurrentTeam();
   if (!team) return;
   team.name = teamNameInputEl.value.trim() || team.name;
-  // normalize formation string to match FORMATION_SLOTS keys
   team.formation = formationInputEl.value.replace(/[: ]+/g, "-");
   saveTeams();
   renderTeamSelect();
@@ -261,6 +258,36 @@ function loadPlayerIntoEditor(player) {
   if (playerDefenseInputEl) playerDefenseInputEl.value = player.defenseRating ?? 0.5;
 }
 
+// clamp attack/defense to realistic ranges
+function clampRatings() {
+  if (!playerAttackInputEl || !playerDefenseInputEl) return;
+
+  let atk = parseFloat(playerAttackInputEl.value) || 0;
+  let def = parseFloat(playerDefenseInputEl.value) || 0;
+
+  atk = Math.max(0, Math.min(1, atk));
+  def = Math.max(0, Math.min(1, def));
+
+  const total = atk + def;
+  const MAX_TOTAL = 1.2;
+
+  if (total > MAX_TOTAL) {
+    const scale = MAX_TOTAL / total;
+    atk = atk * scale;
+    def = def * scale;
+  }
+
+  playerAttackInputEl.value = atk.toFixed(2);
+  playerDefenseInputEl.value = def.toFixed(2);
+}
+
+if (playerAttackInputEl) {
+  playerAttackInputEl.addEventListener("input", clampRatings);
+}
+if (playerDefenseInputEl) {
+  playerDefenseInputEl.addEventListener("input", clampRatings);
+}
+
 savePlayerBtn.addEventListener("click", () => {
   const team = getCurrentTeam();
   if (!team) return;
@@ -274,6 +301,8 @@ savePlayerBtn.addEventListener("click", () => {
   const tertiary = playerTertiaryInputEl.value.split(",").map(s => s.trim()).filter(Boolean);
   const twoWay = playerTwoWayInputEl.checked;
   const notes = playerNotesInputEl.value.trim();
+
+  clampRatings();
 
   const attackRating = playerAttackInputEl
     ? Math.max(0, Math.min(1, parseFloat(playerAttackInputEl.value) || 0.5))
@@ -406,7 +435,7 @@ const FORMATION_SLOTS = {
   ],
 
   "11v11-3-2-3-2": [
-    { id: "Left Striker", x: 35, y: 18 }, { id: "ST2", x: 65, y: 18 },
+    { id: "ST1", x: 35, y: 18 }, { id: "ST2", x: 65, y: 18 },
     { id: "LW", x: 20, y: 35 }, { id: "CAM", x: 50, y: 32 }, { id: "RW", x: 80, y: 35 },
     { id: "Left Center Defensive Mid", x: 35, y: 55 }, { id: "Right Center Defensive Mid", x: 65, y: 55 },
     { id: "Left Back", x: 20, y: 70 }, { id: "Center Back", x: 50, y: 75 }, { id: "Right Back", x: 80, y: 70 },
@@ -414,7 +443,6 @@ const FORMATION_SLOTS = {
   ]
 };
 
-// attack/defense weighting per slot
 const POSITION_WEIGHTS = {
   "Left Striker": { attack: 0.9, defense: 0.1 },
   "Right Striker": { attack: 0.9, defense: 0.1 },
@@ -743,7 +771,7 @@ function renderBench() {
 }
 
 // ===============================
-// SUGGESTIONS (minimal / optional)
+// SUGGESTIONS
 // ===============================
 
 function renderSuggestions() {
@@ -755,31 +783,64 @@ function renderSuggestions() {
   const benchPlayers = team.players.filter(p => !p.onField);
   const fieldPlayers = team.players.filter(p => p.onField);
 
-  if (!benchPlayers.length || !fieldPlayers.length) return;
+  if (!benchPlayers.length) return;
 
-  // 1. Find the position most overdue for a sub
+  const slots = FORMATION_SLOTS[team.formation] || FORMATION_SLOTS["7v7-2-3-1"];
+
+  // STEP 1 — Look for empty positions first
+  const emptySlots = slots.filter(slot => {
+    return !team.players.some(p => p.onField && p.assignedPos === slot.id);
+  });
+
+  if (emptySlots.length > 0) {
+    const slotId = emptySlots[0].id;
+
+    const ranked = benchPlayers
+      .map(p => ({
+        player: p,
+        score: scoreFitForSlot(p, slotId)
+      }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 1);
+
+    const best = ranked[0];
+    if (!best) return;
+
+    const li = document.createElement("li");
+    li.textContent = `Fill ${slotId}: #${best.player.number} ${best.player.name} (${Math.round(best.score * 100)}%)`;
+    suggestionListEl.appendChild(li);
+    return;
+  }
+
+  // STEP 2 — No empty slots → find most overdue field player
   const next = getNextPositionNeedingSub();
   if (!next) return;
 
+  const fieldPlayer = next.player;
   const slotId = next.slotId;
 
-  // 2. Score bench players for that slot
+  const fieldScore = scoreFitForSlot(fieldPlayer, slotId);
+
+  // STEP 3 — Score bench players for that slot
   const ranked = benchPlayers
     .map(p => ({
       player: p,
       score: scoreFitForSlot(p, slotId)
     }))
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 3);
+    .sort((a, b) => b.score - a.score);
 
-  // 3. Output top 3 suggestions
-  ranked.forEach(({ player, score }) => {
-    const li = document.createElement("li");
-    li.textContent = `Best for ${slotId}: #${player.number} ${player.name} (${Math.round(score * 100)}%)`;
-    suggestionListEl.appendChild(li);
-  });
+  const bestBench = ranked[0];
+  if (!bestBench) return;
+
+  const fieldNeedsRest = fieldPlayer.minutesField > fieldPlayer.minutesBench;
+  const benchIsBetter = bestBench.score > fieldScore;
+
+  if (!fieldNeedsRest && !benchIsBetter) return;
+
+  const li = document.createElement("li");
+  li.textContent = `Swap at ${slotId}: #${bestBench.player.number} ${bestBench.player.name} (${Math.round(bestBench.score * 100)}%)`;
+  suggestionListEl.appendChild(li);
 }
-
 
 // ===============================
 // NAVIGATION BUTTONS
