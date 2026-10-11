@@ -251,55 +251,77 @@ body {
 /* ===========================
    RESPONSIVE
    =========================== */
-
 @media (max-width: 768px) {
+
+  /* Stack vertically like an app */
   .game-layout {
     flex-direction: column;
+    gap: 0;
+    height: calc(100vh - var(--header-height));
+    overflow: hidden;
   }
 
+  /* Field takes priority */
+  .field-container {
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 0;
+  }
+
+  .field {
+    width: 95%;
+    max-width: none;
+    aspect-ratio: 2 / 3;
+  }
+
+  /* Bench becomes a full-width app panel */
   .bench-container {
+    flex: 1;
     border-left: none;
-    border-top: 1px solid #263238;
+    border-top: 2px solid #263238;
+    padding: 12px;
+    background: #0f1a24;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .bench {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+    border: 2px dashed #37474f;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.05);
+  }
+
+  /* Bench tokens become full-width tappable cards */
+  .player-token.bench {
+    width: 100%;
+    height: auto;
+    padding: 12px;
+    border-radius: 10px;
+    background: #455a64;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  /* Field tokens scale up slightly on mobile */
+  .player-token {
+    width: 68px;
+    height: 68px;
+    font-size: 0.9rem;
+  }
+
+  /* Sub suggestions become a clean mobile panel */
+  .suggestions {
+    margin-top: 8px;
+    padding: 10px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.05);
   }
 }
-
-.player-number {
-  font-weight: bold;
-  font-size: 1.1rem;
-}
-
-.player-name {
-  font-weight: 600;
-  font-size: 0.95rem;
-  margin-top: 2px;
-}
-
-.minutes {
-  font-size: 0.8rem;
-  margin-top: 4px;
-  opacity: 0.9;
-}
-
-.minutes .active {
-  font-weight: bold;
-  color: #ffeb3b; /* yellow highlight */
-}
-
-.bench-container {
-  flex: 1;
-  background: #0f1a24;
-  border-left: 2px solid #263238;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-}
-
-.bench {
-  flex: 1;
-  overflow-y: auto;
-  padding: 8px;
-  border: 2px dashed #37474f; /* visible drop zone */
-  border-radius: 8px;
-  background: rgba(255,255,255,0.05);
-}
-
