@@ -366,7 +366,7 @@ const FORMATION_SLOTS = {
                    { id: "LCM", x: 35, y: 45 },      { id: "RCM", x: 65, y: 45 },
     
     
-    { id: "LB", x: 20, y: 65 },    { id: "CB", x: 50, y: 70 },      { id: "RB", x: 80, y: 65 },
+    { id: "LB", x: 20, y: 65 },    { id: "Center Back", x: 50, y: 70 },      { id: "RB", x: 80, y: 65 },
 
 
                                    { id: "GK", x: 50, y: 90 }
@@ -378,7 +378,7 @@ const FORMATION_SLOTS = {
 
     { id: "LW", x: 20, y: 50 },    {id: "CM", x: 50, y: 50},    { id: "RW", x: 80, y: 50 },    
 
-    { id: "LB", x: 20, y: 70 },    { id: "CB", x: 50, y: 75 },    { id: "RB", x: 80, y: 70 },
+    { id: "LB", x: 20, y: 70 },    { id: "Center Back", x: 50, y: 75 },    { id: "RB", x: 80, y: 70 },
 
 
                                     { id: "GK", x: 50, y: 90 }
@@ -392,7 +392,7 @@ const FORMATION_SLOTS = {
 
                     { id: "LCDM", x: 35, y: 55 },     { id: "RCDM", x: 65, y: 55 },
     
-    { id: "LCB", x: 20, y: 70 },      { id: "Center Back",  x: 50, y: 75 },      { id: "RCB", x: 80, y: 70 },
+    { id: "Left Back", x: 20, y: 70 },      { id: "Center Back",  x: 50, y: 75 },      { id: "Right Back", x: 80, y: 70 },
 
                                       { id: "GK",  x: 50, y: 92 }
   ]
