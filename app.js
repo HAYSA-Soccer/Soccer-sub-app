@@ -392,7 +392,7 @@ const FORMATION_SLOTS = {
 
                     { id: "LCDM", x: 35, y: 55 },     { id: "RCDM", x: 65, y: 55 },
     
-    { id: "LCB", x: 20, y: 70 },      { id: "CB",  x: 50, y: 75 },      { id: "RCB", x: 80, y: 70 },
+    { id: "LCB", x: 20, y: 70 },      { id: "Center Back",  x: 50, y: 75 },      { id: "RCB", x: 80, y: 70 },
 
                                       { id: "GK",  x: 50, y: 92 }
   ]
