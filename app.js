@@ -366,7 +366,7 @@ const FORMATION_SLOTS = {
                    { id: "Left Striker", x: 35, y: 45 },      { id: "Right Striker", x: 65, y: 45 },
     
     
-    { id: "LB", x: 20, y: 65 },    { id: "Center Back", x: 50, y: 70 },      { id: "RB", x: 80, y: 65 },
+    { id: "Left Back", x: 25, y: 70 },    { id: "Mid", x: 50, y: 60 },      { id: "Right Back", x: 75, y: 70 },
 
 
                                    { id: "Keep", x: 50, y: 90 }
