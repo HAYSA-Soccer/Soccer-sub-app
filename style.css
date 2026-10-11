@@ -273,15 +273,15 @@ body {
    =========================== */
 @media (max-width: 768px) {
 
-  /* Make the main content a vertical flexbox */
+  /* Main content becomes a horizontal layout */
   .game-layout {
     display: flex;
-    flex-direction: column;
+    flex-direction: row; /* <-- SIDE-BENCH */
     height: calc(100vh - var(--header-height) - var(--footer-height));
     overflow: hidden;
   }
 
-  /* Field gets remaining space */
+  /* Field takes most of the width */
   .field-container {
     flex: 1;
     display: flex;
@@ -292,19 +292,22 @@ body {
 
   .field {
     width: 100%;
+    height: 100%;
     max-width: none;
-    aspect-ratio: 2 / 3;
+    aspect-ratio: auto; /* allow full height */
   }
 
-  /* Bench gets fixed height */
+  /* Bench sits on the right side */
   .bench-container {
-    flex: 0 0 140px; /* adjust this number to fit your phone */
+    flex: 0 0 140px; /* width of the bench panel */
     background: #0f1a24;
-    border-top: 2px solid #263238;
+    border-left: 2px solid #263238;
     padding: 8px;
+
     display: flex;
     flex-direction: column;
     gap: 6px;
+    overflow-y: auto;
   }
 
   .bench {
