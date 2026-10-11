@@ -375,9 +375,9 @@ const FORMATION_SLOTS = {
 
     { id: "ST", x: 35, y: 25 },    { id: "ST", x: 55, y: 25 },
 
-    { id: "LW", x: 20, y: 30 },    {id: "CM", x: 45, y: 30},    { id: "RW", x: 70, y: 30 },    
+    { id: "LW", x: 20, y: 50 },    {id: "CM", x: 45, y: 50},    { id: "RW", x: 70, y: 50 },    
 
-    { id: "LB", x: 20, y: 75 },    { id: "CB", x: 45, y: 70 },    { id: "RB", x: 70, y: 75 },
+    { id: "LB", x: 20, y: 70 },    { id: "CB", x: 45, y: 75 },    { id: "RB", x: 70, y: 70 },
 
 
     { id: "GK", x: 45, y: 90 }
