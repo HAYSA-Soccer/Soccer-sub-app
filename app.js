@@ -374,33 +374,27 @@ const FORMATION_SLOTS = {
 
   "9v9-3-3-2": [
 
-                    { id: "LST", x: 40, y: 25 },    { id: "RST", x: 65, y: 25 },
+                    { id: "LST", x: 40, y: 30 },    { id: "RST", x: 65, y: 30 },
 
-    { id: "LW", x: 25, y: 50 },    {id: "CM", x: 55, y: 50},    { id: "RW", x: 75, y: 50 },    
+    { id: "LW", x: 20, y: 50 },    {id: "CM", x: 50, y: 50},    { id: "RW", x: 80, y: 50 },    
 
-    { id: "LB", x: 25, y: 70 },    { id: "CB", x: 55, y: 75 },    { id: "RB", x: 75, y: 70 },
+    { id: "LB", x: 20, y: 70 },    { id: "CB", x: 50, y: 75 },    { id: "RB", x: 80, y: 70 },
 
 
-                                    { id: "GK", x: 55, y: 90 }
+                                    { id: "GK", x: 50, y: 90 }
   ],
 
   
   "11v11-3-2-3-2": [
-    { id: "ST1", x: 35, y: 18 },
-    { id: "ST2", x: 55, y: 18 },
+                    { id: "ST1", x: 35, y: 18 },      { id: "ST2", x: 55, y: 18 },
     
-    { id: "LW",  x: 20, y: 35 },
-    { id: "CAM", x: 45, y: 32 },
-    { id: "RW",  x: 70, y: 35 },
+    { id: "LW",  x: 20, y: 35 },      { id: "CAM", x: 45, y: 32 },      { id: "RW",  x: 70, y: 35 },
 
-    { id: "LCDM", x: 30, y: 55 },
-    { id: "RCDM", x: 60, y: 55 },
+                    { id: "LCDM", x: 30, y: 55 },     { id: "RCDM", x: 60, y: 55 },
     
-    { id: "LCB", x: 15, y: 70 },
-    { id: "CB",  x: 45, y: 75 },
-    { id: "RCB", x: 75, y: 70 },
+    { id: "LCB", x: 15, y: 70 },      { id: "CB",  x: 45, y: 75 },      { id: "RCB", x: 75, y: 70 },
 
-    { id: "GK",  x: 45, y: 92 }
+                                      { id: "GK",  x: 45, y: 92 }
   ]
 };
 
