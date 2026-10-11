@@ -336,6 +336,8 @@ body {
 }
 
 .player-token.on-deck {
-  border-left: 4px solid var(--accent);
-  background: #fff7d1;
+  border-left: 3px solid #e5d17a;
+  background: #faf7e2;
+}
+
 }
