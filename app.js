@@ -362,25 +362,25 @@ resetClockBtn.addEventListener("click", () => {
 
 const FORMATION_SLOTS = {
   "7v7-2-3-1": [
-    { id: "GK", x: 50, y: 90 },
-    { id: "LB", x: 25, y: 65 },
-    { id: "RB", x: 75, y: 65 },
-    { id: "LCM", x: 40, y: 45 },
-    { id: "RCM", x: 60, y: 45 },
-    { id: "LW", x: 25, y: 25 },
-    { id: "RW", x: 75, y: 25 }
+    { id: "GK", x: 45, y: 90 },
+    { id: "LB", x: 20, y: 65 },
+    { id: "RB", x: 70, y: 65 },
+    { id: "LCM", x: 30, y: 45 },
+    { id: "RCM", x: 65, y: 45 },
+    { id: "LW", x: 20, y: 25 },
+    { id: "RW", x: 70, y: 25 }
   ],
 
   "9v9-3-3-2": [
-    { id: "GK", x: 50, y: 90 },
-    { id: "LB", x: 25, y: 70 },
-    { id: "CB", x: 50, y: 70 },
-    { id: "RB", x: 75, y: 70 },
-    { id: "LCM", x: 40, y: 50 },
-    { id: "RCM", x: 60, y: 50 },
-    { id: "LW", x: 25, y: 30 },
-    { id: "ST", x: 50, y: 25 },
-    { id: "RW", x: 75, y: 30 }
+    { id: "GK", x: 45, y: 90 },
+    { id: "LB", x: 20, y: 70 },
+    { id: "CB", x: 45, y: 70 },
+    { id: "RB", x: 70, y: 70 },
+    { id: "LCM", x: 35, y: 50 },
+    { id: "RCM", x: 55, y: 50 },
+    { id: "LW", x: 20, y: 30 },
+    { id: "ST", x: 45, y: 25 },
+    { id: "RW", x: 70, y: 30 }
   ],
 
   "11v11-3-2-3-2": [
