@@ -322,3 +322,20 @@ body {
     font-size: 0.75rem;
   }
 }
+
+
+.on-deck-btn {
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  margin-top: 4px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.player-token.on-deck {
+  border-left: 4px solid var(--accent);
+  background: #fff7d1;
+}
