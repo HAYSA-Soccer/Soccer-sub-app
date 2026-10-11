@@ -372,17 +372,18 @@ const FORMATION_SLOTS = {
   ],
 
   "9v9-3-3-2": [
-    { id: "GK", x: 45, y: 90 },
-    { id: "LB", x: 20, y: 70 },
-    { id: "CB", x: 45, y: 70 },
-    { id: "RB", x: 70, y: 70 },
-    { id: "LCM", x: 35, y: 50 },
-    { id: "RCM", x: 55, y: 50 },
-    { id: "LW", x: 20, y: 30 },
-    { id: "ST", x: 45, y: 25 },
-    { id: "RW", x: 70, y: 30 }
+
+    { id: "ST", x: 35, y: 25 },    { id: "ST", x: 55, y: 25 },
+
+    { id: "LW", x: 20, y: 30 },    {id: "CM", x: 45, y: 30},    { id: "RW", x: 70, y: 30 },    
+
+    { id: "LB", x: 20, y: 75 },    { id: "CB", x: 45, y: 70 },    { id: "RB", x: 70, y: 75 },
+
+
+    { id: "GK", x: 45, y: 90 }
   ],
 
+  
   "11v11-3-2-3-2": [
     { id: "ST1", x: 35, y: 18 },
     { id: "ST2", x: 55, y: 18 },
@@ -394,9 +395,9 @@ const FORMATION_SLOTS = {
     { id: "LCDM", x: 30, y: 55 },
     { id: "RCDM", x: 60, y: 55 },
     
-    { id: "LCB", x: 15, y: 75 },
-    { id: "CB",  x: 45, y: 70 },
-    { id: "RCB", x: 75, y: 75 },
+    { id: "LCB", x: 15, y: 70 },
+    { id: "CB",  x: 45, y: 75 },
+    { id: "RCB", x: 75, y: 70 },
 
     { id: "GK",  x: 45, y: 92 }
   ]
