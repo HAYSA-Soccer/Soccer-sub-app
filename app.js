@@ -435,10 +435,25 @@ const POSITION_WEIGHTS = {
 function scoreFitForSlot(player, slotId) {
   const weights = POSITION_WEIGHTS[slotId];
   if (!weights) return -1;
+
+  // ⭐ OPTION 1 — HARD RULE:
+  // Only players who actually have "Keep" in their positions
+  // can ever be recommended for the GK slot.
+  if (slotId === "Keep") {
+    const isGK =
+      (player.positions.primary && player.positions.primary.includes("Keep")) ||
+      (player.positions.secondary && player.positions.secondary.includes("Keep")) ||
+      (player.positions.tertiary && player.positions.tertiary.includes("Keep"));
+
+    if (!isGK) return -999; // impossible score → never recommended
+  }
+
   const atk = typeof player.attackRating === "number" ? player.attackRating : 0.5;
   const def = typeof player.defenseRating === "number" ? player.defenseRating : 0.5;
+
   return atk * weights.attack + def * weights.defense;
 }
+
 
 function getNextPositionNeedingSub() {
   const team = getCurrentTeam();
