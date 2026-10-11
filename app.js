@@ -374,7 +374,7 @@ const FORMATION_SLOTS = {
 
   "9v9-3-3-2": [
 
-                    { id: "LST", x: 40, y: 30 },    { id: "RST", x: 65, y: 30 },
+                    { id: "LST", x: 35, y: 30 },    { id: "RST", x: 65, y: 30 },
 
     { id: "LW", x: 20, y: 50 },    {id: "CM", x: 50, y: 50},    { id: "RW", x: 80, y: 50 },    
 
@@ -386,11 +386,11 @@ const FORMATION_SLOTS = {
 
   
   "11v11-3-2-3-2": [
-                    { id: "ST1", x: 40, y: 18 },      { id: "ST2", x: 65, y: 18 },
+                    { id: "ST1", x: 35, y: 18 },      { id: "ST2", x: 65, y: 18 },
     
     { id: "LW",  x: 20, y: 35 },      { id: "CAM", x: 50, y: 32 },      { id: "RW",  x: 80, y: 35 },
 
-                    { id: "LCDM", x: 30, y: 55 },     { id: "RCDM", x: 60, y: 55 },
+                    { id: "LCDM", x: 35, y: 55 },     { id: "RCDM", x: 65, y: 55 },
     
     { id: "LCB", x: 20, y: 70 },      { id: "CB",  x: 50, y: 75 },      { id: "RCB", x: 80, y: 70 },
 
