@@ -273,61 +273,21 @@ body {
    =========================== */
 @media (max-width: 768px) {
 
-  /* Full mobile app layout */
-  .screen {
-    height: 100vh;
-    overflow: hidden;
+  /* Make the main content a vertical flexbox */
+  .game-layout {
     display: flex;
     flex-direction: column;
-  }
-
-  /* Fixed header */
-  .screen-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: var(--header-height);
-    z-index: 10;
-  }
-
-  /* Fixed bottom bar */
-  .screen-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 50px;
-    padding: 0 8px;
-    z-index: 10;
-
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  /* Main content fits between header + footer */
-  .screen-content {
-    position: absolute;
-    top: var(--header-height);
-    bottom: 50px; /* footer height */
-    left: 0;
-    right: 0;
-
-    display: flex;
-    flex-direction: column;
+    height: calc(100vh - var(--header-height) - var(--footer-height));
     overflow: hidden;
-    padding: 6px;
-    gap: 6px;
   }
 
-  /* Field gets priority space */
+  /* Field gets remaining space */
   .field-container {
-    flex: 1; /* <-- THIS FIXES THE OVERLAP */
+    flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 0;
+    padding: 4px;
   }
 
   .field {
@@ -336,13 +296,12 @@ body {
     aspect-ratio: 2 / 3;
   }
 
-  /* Bench drawer sits BELOW the field, not inside it */
+  /* Bench gets fixed height */
   .bench-container {
-    flex: 0 0 120px; /* fixed drawer height */
+    flex: 0 0 140px; /* adjust this number to fit your phone */
     background: #0f1a24;
     border-top: 2px solid #263238;
-    padding: 6px;
-
+    padding: 8px;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -357,33 +316,22 @@ body {
     background: rgba(255,255,255,0.05);
   }
 
-  /* Bench tokens become compact cards */
+  /* Bench tokens */
   .player-token.bench {
     width: 100%;
-    height: auto;
-    padding: 8px;
-    border-radius: 8px;
+    padding: 10px;
+    border-radius: 10px;
     background: #455a64;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 2px;
-    font-size: 0.8rem;
+    gap: 4px;
   }
 
   /* Field tokens */
   .player-token {
     width: 60px;
     height: 60px;
-    font-size: 0.85rem;
     transform: translate(-50%, -50%);
-  }
-
-  /* Suggestions */
-  .suggestions {
-    padding: 6px;
-    border-radius: 8px;
-    background: rgba(255,255,255,0.05);
-    font-size: 0.8rem;
   }
 }
