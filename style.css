@@ -119,18 +119,30 @@ body {
 
 .position-slot {
   position: absolute;
-  width: 52px;
-  height: 52px;
+
+  /* Bigger circle so words fit */
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
   border: 2px dashed var(--line);
+
+  /* Center the text inside */
   display: flex;
   justify-content: center;
   align-items: center;
+  text-align: center;
+
+  /* Allow wrapping for long words */
+  white-space: normal;
+  line-height: 1.1;
+
   color: var(--line);
   font-size: 0.7rem;
 
-  transform: translate(-50%, -50%); /* CENTER SLOT */
+  /* Center the circle itself on (x%, y%) */
+  transform: translate(-50%, -50%);
 }
+
 
 
 .position-slot.highlight {
@@ -333,3 +345,4 @@ body {
     background: rgba(255,255,255,0.05);
   }
 }
+
