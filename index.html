@@ -1,5 +1,3 @@
-<!-- force refresh -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,6 +13,8 @@
   <!-- SCREEN 1: GAME SCREEN     -->
   <!-- ========================= -->
   <main id="gameScreen" class="screen">
+
+    <!-- FIXED HEADER -->
     <header class="screen-header">
       <div class="left">
         <select id="teamSelect"></select>
@@ -28,11 +28,15 @@
       </div>
     </header>
 
-    <section class="screen-content game-layout">
+    <!-- FLEX CONTENT AREA -->
+    <section class="screen-content">
+
+      <!-- FIELD ZONE -->
       <div class="field-container">
         <div id="field" class="field"></div>
       </div>
 
+      <!-- BENCH ZONE -->
       <div class="bench-container">
         <div class="bench-header">Bench</div>
         <div id="bench" class="bench"></div>
@@ -42,15 +46,21 @@
           <ul id="suggestionList"></ul>
         </div>
       </div>
+
     </section>
 
-    <footer class="screen-footer"></footer>
+    <!-- FIXED FOOTER -->
+    <footer class="screen-footer">
+      <!-- You can add bottom buttons here if needed -->
+    </footer>
+
   </main>
 
   <!-- ========================= -->
   <!-- SCREEN 2: TEAM MANAGER    -->
   <!-- ========================= -->
   <main id="teamManagerScreen" class="screen hidden">
+
     <header class="screen-header">
       <button id="backToGame" class="btn small">← Back</button>
       <h2>Team Manager</h2>
@@ -82,12 +92,14 @@
     <footer class="screen-footer">
       <button id="saveTeamBtn" class="btn">Save Team</button>
     </footer>
+
   </main>
 
   <!-- ========================= -->
   <!-- SCREEN 3: PLAYER EDITOR   -->
   <!-- ========================= -->
   <main id="playerEditorScreen" class="screen hidden">
+
     <header class="screen-header">
       <button id="backToTeamManager" class="btn small">← Back</button>
       <h2 id="playerEditorTitle">New Player</h2>
@@ -132,6 +144,7 @@
       <button id="savePlayerBtn" class="btn">Save Player</button>
       <button id="deletePlayerBtn" class="btn danger">Delete Player</button>
     </footer>
+
   </main>
 
   <script src="app.js"></script>
