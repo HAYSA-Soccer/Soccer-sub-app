@@ -142,14 +142,18 @@ body {
 
 .player-token {
   position: absolute;
+  transform: translate(-50%, -50%); /* CENTER FIX */
+
   width: 72px;          /* bigger */
   height: 72px;
   border-radius: 50%;   /* circular */
   background: #2196f3;  /* brighter blue */
+
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0,0,0,0.4);
   text-align: center;
@@ -158,6 +162,7 @@ body {
   font-size: 0.85rem;
   color: white;         /* ensure contrast */
 }
+
 
 .player-token.selected {
   outline: 3px solid var(--accent);
