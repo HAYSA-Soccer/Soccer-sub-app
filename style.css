@@ -297,7 +297,7 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 50px; /* smaller footer */
+    height: 50px;
     padding: 0 8px;
     z-index: 10;
 
@@ -310,21 +310,20 @@ body {
   .screen-content {
     position: absolute;
     top: var(--header-height);
-    bottom: 50px; /* match footer height */
+    bottom: 50px; /* footer height */
     left: 0;
     right: 0;
 
-    overflow: hidden;
-    padding: 4px;
-
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    overflow: hidden;
+    padding: 6px;
+    gap: 6px;
   }
 
-  /* Field centered and scaled */
+  /* Field gets priority space */
   .field-container {
-    flex: 1;
+    flex: 1; /* <-- THIS FIXES THE OVERLAP */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -337,20 +336,16 @@ body {
     aspect-ratio: 2 / 3;
   }
 
-  /* Bench becomes a slide-up drawer */
+  /* Bench drawer sits BELOW the field, not inside it */
   .bench-container {
-    position: absolute;
-    bottom: 50px; /* sits above footer */
-    left: 0;
-    right: 0;
-
-    height: 120px; /* compact drawer */
+    flex: 0 0 120px; /* fixed drawer height */
     background: #0f1a24;
     border-top: 2px solid #263238;
+    padding: 6px;
 
     display: flex;
     flex-direction: column;
-    padding: 6px;
+    gap: 6px;
   }
 
   .bench {
@@ -376,7 +371,7 @@ body {
     font-size: 0.8rem;
   }
 
-  /* Field tokens scale down slightly */
+  /* Field tokens */
   .player-token {
     width: 60px;
     height: 60px;
@@ -384,7 +379,7 @@ body {
     transform: translate(-50%, -50%);
   }
 
-  /* Suggestions panel compact */
+  /* Suggestions */
   .suggestions {
     padding: 6px;
     border-radius: 8px;
