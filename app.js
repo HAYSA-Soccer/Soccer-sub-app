@@ -618,13 +618,11 @@ function handleBenchTap(benchPlayerId) {
   if (!team) return;
 
   if (!selectedPlayerId) {
-    onDeckPlayerId = benchPlayerId;
-    const p = getPlayerById(benchPlayerId);
-    if (p) determineOnDeckTarget(p);
+    selectedPlayerId = benchPlayerId;   // ✔ restore original behavior
     renderBench();
     renderField();
     return;
-  }
+}
 
   const selectedPlayer = getPlayerById(selectedPlayerId);
 
