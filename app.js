@@ -374,14 +374,14 @@ const FORMATION_SLOTS = {
 
   "9v9-3-3-2": [
 
-    { id: "LST", x: 35, y: 25 },    { id: "RST", x: 55, y: 25 },
+                    { id: "LST", x: 40, y: 25 },    { id: "RST", x: 65, y: 25 },
 
-    { id: "LW", x: 20, y: 50 },    {id: "CM", x: 45, y: 50},    { id: "RW", x: 70, y: 50 },    
+    { id: "LW", x: 25, y: 50 },    {id: "CM", x: 55, y: 50},    { id: "RW", x: 75, y: 50 },    
 
-    { id: "LB", x: 20, y: 70 },    { id: "CB", x: 45, y: 75 },    { id: "RB", x: 70, y: 70 },
+    { id: "LB", x: 25, y: 70 },    { id: "CB", x: 55, y: 75 },    { id: "RB", x: 75, y: 70 },
 
 
-    { id: "GK", x: 45, y: 90 }
+                                    { id: "GK", x: 55, y: 90 }
   ],
 
   
