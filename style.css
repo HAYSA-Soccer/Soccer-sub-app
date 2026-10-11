@@ -1,3 +1,6 @@
+/* ========================================= */
+/* ROOT VARIABLES                            */
+/* ========================================= */
 :root {
   --bg: #0b1724;
   --field-green: #1b5e20;
@@ -10,13 +13,13 @@
   --header-height: 56px;
   --footer-height: 64px;
 
-  /* ⭐ MOBILE BENCH MUST BE WIDER */
   --bench-width-mobile: 150px;
   --bench-width-desktop: 180px;
 }
 
-/* GLOBAL */
-
+/* ========================================= */
+/* GLOBAL                                     */
+/* ========================================= */
 body {
   margin: 0;
   background: var(--bg);
@@ -55,8 +58,9 @@ body {
   border-radius: 10px;
 }
 
-/* SCREEN LAYOUT */
-
+/* ========================================= */
+/* SCREEN LAYOUT                              */
+/* ========================================= */
 .screen {
   height: 100vh;
   display: flex;
@@ -95,8 +99,9 @@ body {
   background: #111827;
 }
 
-/* GAME SCREEN */
-
+/* ========================================= */
+/* GAME SCREEN                                */
+/* ========================================= */
 .game-layout {
   display: flex;
   flex-direction: row;
@@ -110,6 +115,9 @@ body {
   align-items: center;
 }
 
+/* ========================================= */
+/* REAL SOCCER FIELD                          */
+/* ========================================= */
 .field {
   position: relative;
   width: 100%;
@@ -118,10 +126,95 @@ body {
   background: var(--field-green);
   border: 2px solid var(--line);
   border-radius: 12px;
+  overflow: hidden;
 }
 
-/* POSITION SLOTS */
+/* Midfield line */
+.field::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #ffffff55;
+}
 
+/* Center circle */
+.field::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120px;
+  height: 120px;
+  margin-left: -60px;
+  margin-top: -60px;
+  border: 2px solid #ffffff55;
+  border-radius: 50%;
+}
+
+/* Penalty box */
+.field .penalty-box {
+  position: absolute;
+  left: 20%;
+  width: 60%;
+  height: 18%;
+  bottom: 0;
+  border: 2px solid #ffffff55;
+  border-bottom: none;
+}
+
+/* Goal box */
+.field .goal-box {
+  position: absolute;
+  left: 35%;
+  width: 30%;
+  height: 10%;
+  bottom: 0;
+  border: 2px solid #ffffff55;
+  border-bottom: none;
+}
+
+/* Goal line */
+.field .goal-line {
+  position: absolute;
+  bottom: 0;
+  left: 35%;
+  width: 30%;
+  height: 3px;
+  background: #ffffffaa;
+}
+
+/* Penalty spot */
+.field .penalty-spot {
+  position: absolute;
+  bottom: 18%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  background: #ffffffaa;
+  border-radius: 50%;
+}
+
+/* Corner arcs */
+.field .corner {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border: 2px solid #ffffff55;
+  border-radius: 50%;
+}
+
+.field .corner.tl { top: -15px; left: -15px; }
+.field .corner.tr { top: -15px; right: -15px; }
+.field .corner.bl { bottom: -15px; left: -15px; }
+.field .corner.br { bottom: -15px; right: -15px; }
+
+/* ========================================= */
+/* POSITION SLOTS                             */
+/* ========================================= */
 .position-slot {
   position: absolute;
   width: 70px;
@@ -145,8 +238,9 @@ body {
   box-shadow: 0 0 10px var(--accent);
 }
 
-/* FIELD TOKENS ONLY */
-
+/* ========================================= */
+/* FIELD TOKENS                               */
+/* ========================================= */
 .player-token:not(.bench) {
   position: absolute;
   transform: translate(-50%, -50%);
@@ -171,8 +265,9 @@ body {
   box-shadow: 0 0 10px var(--accent);
 }
 
-/* BENCH PANEL */
-
+/* ========================================= */
+/* BENCH PANEL                                */
+/* ========================================= */
 .bench-container {
   flex: 0 0 var(--bench-width-desktop);
   background: #0f1a24;
@@ -199,8 +294,9 @@ body {
   background: rgba(255,255,255,0.05);
 }
 
-/* SUPER COMPACT BENCH TOKENS */
-
+/* ========================================= */
+/* BENCH TOKENS                               */
+/* ========================================= */
 .player-token.bench {
   position: relative;
   width: 100%;
@@ -234,45 +330,34 @@ body {
   opacity: 0.8;
 }
 
-/* TEAM MANAGER */
-
-.team-meta.card,
-.roster-list.card {
-  padding: 12px;
-  border-radius: 10px;
-  background: #1a2330;
-  gap: 12px;
-}
-
-.team-meta label,
-.player-editor label {
-  display: flex;
-  flex-direction: column;
-  font-size: 0.85rem;
-}
-
-.team-meta input,
-.team-meta select,
-.player-editor input,
-.player-editor textarea {
+/* ========================================= */
+/* ON-DECK                                    */
+/* ========================================= */
+.on-deck-btn {
+  font-size: 0.65rem;
+  padding: 2px 6px;
   margin-top: 4px;
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid #37474f;
-  background: #0f172a;
-  color: var(--text);
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-#rosterList li {
-  padding: 8px 10px;
-  background: #2a3442;
-  border-radius: 6px;
-  margin-bottom: 6px;
-  font-size: 0.85rem;
+.player-token.on-deck {
+  border-left: 2px solid rgba(214, 197, 107, 0.35);
+  background: transparent;
 }
 
-/* MOBILE FIXES */
+.player-token .target {
+  font-size: 0.65rem;
+  color: #aaa;
+  margin-top: 2px;
+}
 
+/* ========================================= */
+/* MOBILE                                     */
+/* ========================================= */
 @media (max-width: 768px) {
 
   .screen-content {
@@ -311,7 +396,6 @@ body {
     gap: 6px;
   }
 
-  /* FIELD TOKENS ONLY — MOBILE */
   .player-token:not(.bench) {
     width: 50px;
     height: 50px;
@@ -321,94 +405,4 @@ body {
     padding: 5px 8px;
     font-size: 0.75rem;
   }
-}
-
-/* ⭐ ON-DECK BUTTON */
-.on-deck-btn {
-  font-size: 0.65rem;
-  padding: 2px 6px;
-  margin-top: 4px;
-  background: var(--accent);
-  color: #000;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-/* ⭐ ULTRA-SUBTLE ON-DECK HIGHLIGHT */
-.player-token.on-deck {
-  border-left: 2px solid rgba(214, 197, 107, 0.35); /* soft gold */
-  background: transparent; /* no yellow block */
-}
-
-/* ⭐ ON-DECK TARGET TEXT */
-.player-token .target {
-  font-size: 0.65rem;
-  color: #aaa;
-  margin-top: 2px;
-}
-
-#field {
-  position: relative;
-  background: #2f7d32; /* pitch green */
-  border: 3px solid #ffffffaa;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-/* Midfield line */
-#field::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: #ffffff55;
-}
-
-/* Center circle */
-#field::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 120px;
-  height: 120px;
-  margin-left: -60px;
-  margin-top: -60px;
-  border: 2px solid #ffffff55;
-  border-radius: 50%;
-}
-
-/* Penalty box */
-#field .penalty-box {
-  position: absolute;
-  left: 20%;
-  width: 60%;
-  height: 18%;
-  bottom: 0;
-  border: 2px solid #ffffff55;
-  border-bottom: none;
-}
-
-/* Goal box */
-#field .goal-box {
-  position: absolute;
-  left: 35%;
-  width: 30%;
-  height: 10%;
-  bottom: 0;
-  border: 2px solid #ffffff55;
-  border-bottom: none;
-}
-
-/* Goal line */
-#field .goal-line {
-  position: absolute;
-  bottom: 0;
-  left: 35%;
-  width: 30%;
-  height: 3px;
-  background: #ffffffaa;
 }
