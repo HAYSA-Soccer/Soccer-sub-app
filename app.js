@@ -381,19 +381,29 @@ const FORMATION_SLOTS = {
     { id: "ST", x: 50, y: 25 },
     { id: "RW", x: 80, y: 30 }
   ],
-  "11v11-4-3-3": [
-    { id: "GK", x: 50, y: 90 },
-    { id: "LB", x: 15, y: 70 },
-    { id: "LCB", x: 35, y: 70 },
-    { id: "RCB", x: 65, y: 70 },
-    { id: "RB", x: 85, y: 70 },
-    { id: "LCM", x: 35, y: 50 },
-    { id: "CM", x: 50, y: 45 },
-    { id: "RCM", x: 65, y: 50 },
-    { id: "LW", x: 20, y: 25 },
-    { id: "ST", x: 50, y: 20 },
-    { id: "RW", x: 80, y: 25 }
+  "11v11-3-2-3-2": [
+    { id: "GK",  x: 50, y: 92 },
+  
+    // Back 3
+    { id: "LCB", x: 30, y: 70 },
+    { id: "CB",  x: 50, y: 70 },
+    { id: "RCB", x: 70, y: 70 },
+  
+    // Double pivot (2 CDMs)
+    { id: "LCDM", x: 40, y: 55 },
+    { id: "RCDM", x: 60, y: 55 },
+  
+    // Midfield 3
+    { id: "LW",  x: 25, y: 35 },
+    { id: "CAM", x: 50, y: 32 },
+    { id: "RW",  x: 75, y: 35 },
+  
+    // Striker pair
+    { id: "ST1", x: 40, y: 18 },
+    { id: "ST2", x: 60, y: 18 }
   ]
+  
+
 };
 
 function renderField() {
