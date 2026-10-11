@@ -601,12 +601,16 @@ function renderSuggestions() {
 
   if (!benchPlayers.length || !fieldPlayers.length) return;
 
+  // Sort by longest bench time first
+  benchPlayers.sort((a, b) => b.minutesBench - a.minutesBench);
+
   benchPlayers.slice(0, 3).forEach(bp => {
     const li = document.createElement("li");
-    li.textContent = `Consider subbing in #${bp.number} ${bp.name}`;
+    li.textContent = `Next up: #${bp.number} ${bp.name} (B: ${bp.minutesBench} min)`;
     suggestionListEl.appendChild(li);
   });
 }
+
 
 // ===============================
 // NAVIGATION BUTTONS
