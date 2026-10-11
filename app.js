@@ -79,6 +79,31 @@ function getCurrentTeam() {
   return teams.find(t => t.id === currentTeamId);
 }
 
+// Normalize position names so aliases still match formation slots
+function normalizePositionName(name) {
+  if (!name) return "";
+  const trimmed = name.trim();
+
+  const map = {
+    "Left Striker": ["Left Striker", "Striker", "ST", "Forward", "LS"],
+    "Right Striker": ["Right Striker", "Striker", "ST", "Forward", "RS"],
+    "LW": ["LW", "Left Wing", "Left Winger"],
+    "RW": ["RW", "Right Wing", "Right Winger"],
+    "CM": ["CM", "Mid", "Center Mid", "Central Mid"],
+    "Mid": ["Mid", "CM", "Center Mid", "Central Mid"],
+    "Left Back": ["Left Back", "LB", "Left Defender"],
+    "Right Back": ["Right Back", "RB", "Right Defender"],
+    "Center Back": ["Center Back", "CB", "Center Defender"],
+    "Keep": ["Keep", "GK", "Goalie", "Goalkeeper"]
+  };
+
+  for (const slot in map) {
+    if (map[slot].includes(trimmed)) return slot;
+  }
+
+  return trimmed;
+}
+
 // ===============================
 // STORAGE (with migration)
 // ===============================
@@ -465,23 +490,21 @@ function scoreFitForSlot(player, slotId) {
   const weights = POSITION_WEIGHTS[slotId];
   if (!weights) return -1;
 
-  // Position-aware: only consider players who have this slotId in their positions
   const allPositions = [
     ...(player.positions.primary || []),
     ...(player.positions.secondary || []),
     ...(player.positions.tertiary || [])
   ];
 
-  if (!allPositions.includes(slotId)) {
+  const normalizedPositions = allPositions.map(normalizePositionName);
+  const normalizedSlot = normalizePositionName(slotId);
+
+  if (!normalizedPositions.includes(normalizedSlot)) {
     return -999; // not trained for this position
   }
 
-  if (slotId === "Keep") {
-    const isGK =
-      (player.positions.primary && player.positions.primary.includes("Keep")) ||
-      (player.positions.secondary && player.positions.secondary.includes("Keep")) ||
-      (player.positions.tertiary && player.positions.tertiary.includes("Keep"));
-
+  if (normalizedSlot === "Keep") {
+    const isGK = normalizedPositions.includes("Keep");
     if (!isGK) return -999;
   }
 
@@ -529,6 +552,14 @@ function renderField() {
   if (!team) return;
   fieldEl.innerHTML = "";
 
+  // SAFETY PATCH: fix corrupted players (onField true but no assignedPos)
+  team.players.forEach(p => {
+    if (p.onField && !p.assignedPos) {
+      p.onField = false;
+    }
+  });
+  saveTeams();
+
   const slots = FORMATION_SLOTS[team.formation] || FORMATION_SLOTS["7v7-2-3-1"];
 
   slots.forEach(slot => {
@@ -543,10 +574,7 @@ function renderField() {
       div.classList.add("highlight");
     }
 
-    div.addEventListener("touchstart", (e) => {
-      e.stopPropagation();
-      e.preventDefault();
-
+    const placePlayer = () => {
       if (!selectedPlayerId) return;
       const player = getPlayerById(selectedPlayerId);
       if (!player) return;
@@ -560,24 +588,17 @@ function renderField() {
       renderField();
       renderBench();
       renderSuggestions();
+    };
+
+    div.addEventListener("touchstart", (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      placePlayer();
     });
 
     div.addEventListener("click", (e) => {
       e.stopPropagation();
-
-      if (!selectedPlayerId) return;
-      const player = getPlayerById(selectedPlayerId);
-      if (!player) return;
-
-      player.onField = true;
-      player.assignedPos = slot.id;
-
-      saveTeams();
-
-      selectedPlayerId = null;
-      renderField();
-      renderBench();
-      renderSuggestions();
+      placePlayer();
     });
 
     fieldEl.appendChild(div);
@@ -782,7 +803,7 @@ function renderBench() {
 }
 
 // ===============================
-// SUGGESTIONS (position-aware)
+// SUGGESTIONS (position-aware + alias-aware)
 // ===============================
 
 function renderSuggestions() {
