@@ -115,7 +115,7 @@ function loadTeams() {
     teams = [
       {
         id: "default",
-        name: "U12 Travel",
+        name: "Team",
         formation: "7v7-2-3-1",
         players: []
       }
@@ -406,7 +406,7 @@ const FORMATION_SLOTS = {
   ],
 
   "11v11-3-2-3-2": [
-    { id: "ST1", x: 35, y: 18 }, { id: "ST2", x: 65, y: 18 },
+    { id: "Left Striker", x: 35, y: 18 }, { id: "ST2", x: 65, y: 18 },
     { id: "LW", x: 20, y: 35 }, { id: "CAM", x: 50, y: 32 }, { id: "RW", x: 80, y: 35 },
     { id: "Left Center Defensive Mid", x: 35, y: 55 }, { id: "Right Center Defensive Mid", x: 65, y: 55 },
     { id: "Left Back", x: 20, y: 70 }, { id: "Center Back", x: 50, y: 75 }, { id: "Right Back", x: 80, y: 70 },
