@@ -56,7 +56,7 @@ const playerTertiaryInputEl = document.getElementById("playerTertiaryInput");
 const playerTwoWayInputEl = document.getElementById("playerTwoWayInput");
 const playerNotesInputEl = document.getElementById("playerNotesInput");
 const savePlayerBtn = document.getElementById("savePlayerBtn");
-const deletePlayerBtn = document.getElementById("deletePlayerBtn");
+const deletePlayerBtn = document.getElementById("deletePlayerBtn";
 
 // ⭐ NEW: attack/defense inputs (assumed present in HTML)
 const playerAttackInputEl = document.getElementById("playerAttackInput");
@@ -214,7 +214,8 @@ saveTeamBtn.addEventListener("click", () => {
   const team = getCurrentTeam();
   if (!team) return;
   team.name = teamNameInputEl.value.trim() || team.name;
-  team.formation = formationInputEl.value;
+  // normalize formation string to match FORMATION_SLOTS keys
+  team.formation = formationInputEl.value.replace(/[: ]+/g, "-");
   saveTeams();
   renderTeamSelect();
   renderField();
@@ -436,7 +437,6 @@ function scoreFitForSlot(player, slotId) {
   const weights = POSITION_WEIGHTS[slotId];
   if (!weights) return -1;
 
-  // ⭐ OPTION 1 — HARD RULE:
   // Only players who actually have "Keep" in their positions
   // can ever be recommended for the GK slot.
   if (slotId === "Keep") {
@@ -453,7 +453,6 @@ function scoreFitForSlot(player, slotId) {
 
   return atk * weights.attack + def * weights.defense;
 }
-
 
 function getNextPositionNeedingSub() {
   const team = getCurrentTeam();
@@ -520,6 +519,8 @@ function renderField() {
       player.onField = true;
       player.assignedPos = slot.id;
 
+      saveTeams();   // ⭐ ensure assignment is persisted
+
       selectedPlayerId = null;
       renderField();
       renderBench();
@@ -536,6 +537,8 @@ function renderField() {
 
       player.onField = true;
       player.assignedPos = slot.id;
+
+      saveTeams();   // ⭐ ensure assignment is persisted
 
       selectedPlayerId = null;
       renderField();
@@ -603,6 +606,8 @@ function handleBenchDropZone() {
     player.assignedPos = null;
     selectedPlayerId = null;
 
+    saveTeams();   // ⭐ ensure removal is persisted
+
     renderField();
     renderBench();
     renderSuggestions();
@@ -637,7 +642,7 @@ function handleBenchTap(benchPlayerId) {
     renderBench();
     renderField();
     return;
-}
+  }
 
   const selectedPlayer = getPlayerById(selectedPlayerId);
 
@@ -645,6 +650,8 @@ function handleBenchTap(benchPlayerId) {
     selectedPlayer.onField = false;
     selectedPlayer.assignedPos = null;
     selectedPlayerId = null;
+
+    saveTeams();   // ⭐ ensure removal is persisted
 
     renderBench();
     renderField();
@@ -713,6 +720,9 @@ function renderBench() {
       // If already ON-DECK → clear it
       if (onDeckPlayerId === player.id) {
         onDeckPlayerId = null;
+
+        saveTeams();   // ⭐ persist ON-DECK change
+
         renderBench();
         renderSuggestions();
         return;
@@ -721,6 +731,8 @@ function renderBench() {
       // Otherwise → set ON-DECK
       onDeckPlayerId = player.id;
       determineOnDeckTarget(player);
+
+      saveTeams();   // ⭐ persist ON-DECK change
 
       renderBench();
       renderSuggestions();
@@ -743,7 +755,6 @@ function renderBench() {
     benchEl.appendChild(token);
   });
 }
-
 
 // ===============================
 // SUGGESTIONS (minimal / optional)
