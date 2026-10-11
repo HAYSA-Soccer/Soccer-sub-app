@@ -273,39 +273,74 @@ body {
    =========================== */
 @media (max-width: 768px) {
 
-  /* Stack vertically like an app */
-  .game-layout {
-    flex-direction: column;
-    gap: 0;
-    height: calc(100vh - var(--header-height));
+  /* Full mobile app layout */
+  .screen {
+    height: 100vh;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
 
-  /* Field takes priority */
+  /* Fixed header */
+  .screen-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-height);
+    z-index: 10;
+  }
+
+  /* Fixed bottom bar */
+  .screen-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: var(--footer-height);
+    z-index: 10;
+  }
+
+  /* Main content fits between header + footer */
+  .screen-content {
+    position: absolute;
+    top: var(--header-height);
+    bottom: var(--footer-height);
+    left: 0;
+    right: 0;
+
+    overflow: hidden;
+    padding: 8px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /* Field centered and scaled */
   .field-container {
     flex: 0 0 auto;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 12px 0;
+    padding: 6px 0;
   }
 
   .field {
-    width: 95%;
+    width: 100%;
     max-width: none;
     aspect-ratio: 2 / 3;
   }
 
-  /* Bench becomes a full-width app panel */
+  /* Bench panel */
   .bench-container {
     flex: 1;
-    border-left: none;
-    border-top: 2px solid #263238;
-    padding: 12px;
     background: #0f1a24;
+    border-top: 2px solid #263238;
+    padding: 10px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
   }
 
   .bench {
@@ -317,7 +352,7 @@ body {
     background: rgba(255,255,255,0.05);
   }
 
-  /* Bench tokens become full-width tappable cards */
+  /* Bench tokens become full-width cards */
   .player-token.bench {
     width: 100%;
     height: auto;
@@ -330,16 +365,16 @@ body {
     gap: 4px;
   }
 
-  /* Field tokens scale up slightly on mobile */
+  /* Field tokens scale up slightly */
   .player-token {
     width: 68px;
     height: 68px;
     font-size: 0.9rem;
+    transform: translate(-50%, -50%);
   }
 
-  /* Sub suggestions become a clean mobile panel */
+  /* Suggestions panel */
   .suggestions {
-    margin-top: 8px;
     padding: 10px;
     border-radius: 10px;
     background: rgba(255,255,255,0.05);
