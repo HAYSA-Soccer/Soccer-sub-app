@@ -653,7 +653,7 @@ function renderBench() {
     const token = document.createElement("div");
     token.className = "player-token bench";
 
-    // Highlight ON-DECK player
+    // Subtle ON-DECK highlight
     if (player.id === onDeckPlayerId) {
       token.classList.add("on-deck");
     }
@@ -687,21 +687,33 @@ function renderBench() {
       token.classList.add("selected");
     }
 
-    // ⭐ NEW: ON-DECK BUTTON
+    // ⭐ ON-DECK BUTTON (toggle)
     const onDeckBtn = document.createElement("button");
-    onDeckBtn.textContent = "On Deck";
+    onDeckBtn.textContent = (player.id === onDeckPlayerId) ? "Clear" : "On Deck";
     onDeckBtn.className = "on-deck-btn";
 
     onDeckBtn.addEventListener("click", (e) => {
       e.stopPropagation(); // prevent selecting the player
+
+      // If already ON-DECK → clear it
+      if (onDeckPlayerId === player.id) {
+        onDeckPlayerId = null;
+        renderBench();
+        renderSuggestions();
+        return;
+      }
+
+      // Otherwise → set ON-DECK
       onDeckPlayerId = player.id;
       determineOnDeckTarget(player);
+
       renderBench();
+      renderSuggestions();
     });
 
     token.appendChild(onDeckBtn);
 
-    // ⭐ NORMAL TAP = SELECT PLAYER (original behavior restored)
+    // ⭐ NORMAL TAP = SELECT PLAYER (original behavior)
     token.addEventListener("touchstart", (e) => {
       e.stopPropagation();
       e.preventDefault();
@@ -716,6 +728,7 @@ function renderBench() {
     benchEl.appendChild(token);
   });
 }
+
 
 // ===============================
 // SUGGESTIONS (minimal / optional)
