@@ -369,7 +369,7 @@ const FORMATION_SLOTS = {
     { id: "LB", x: 20, y: 65 },    { id: "Center Back", x: 50, y: 70 },      { id: "RB", x: 80, y: 65 },
 
 
-                                   { id: "GK", x: 50, y: 90 }
+                                   { id: "Keep", x: 50, y: 90 }
   ],
 
   "9v9-3-3-2": [
@@ -381,7 +381,7 @@ const FORMATION_SLOTS = {
     { id: "LB", x: 20, y: 70 },    { id: "Center Back", x: 50, y: 75 },    { id: "RB", x: 80, y: 70 },
 
 
-                                    { id: "GK", x: 50, y: 90 }
+                                    { id: "Keep", x: 50, y: 90 }
   ],
 
   
@@ -390,11 +390,11 @@ const FORMATION_SLOTS = {
     
     { id: "LW",  x: 20, y: 35 },      { id: "CAM", x: 50, y: 32 },      { id: "RW",  x: 80, y: 35 },
 
-                    { id: "LCDM", x: 35, y: 55 },     { id: "RCDM", x: 65, y: 55 },
+                    { id: "Left Center Defensive Mid", x: 35, y: 55 },     { id: "Right Center Defensive Mid", x: 65, y: 55 },
     
     { id: "Left Back", x: 20, y: 70 },      { id: "Center Back",  x: 50, y: 75 },      { id: "Right Back", x: 80, y: 70 },
 
-                                      { id: "GK",  x: 50, y: 92 }
+                                      { id: "Keep",  x: 50, y: 92 }
   ]
 };
 
