@@ -137,15 +137,15 @@ body {
 }
 
 /* ===========================
-   FIXED PLAYER TOKEN
+   IMPROVED PLAYER TOKEN
    =========================== */
 
 .player-token {
   position: absolute;
-  width: 60px;          /* slightly bigger */
-  height: 60px;
-  border-radius: 50%;   /* keep circular */
-  background: #1e88e5;
+  width: 72px;          /* bigger */
+  height: 72px;
+  border-radius: 50%;   /* circular */
+  background: #2196f3;  /* brighter blue */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -154,9 +154,9 @@ body {
   box-shadow: 0 2px 6px rgba(0,0,0,0.4);
   text-align: center;
 
-  /* typography */
-  padding: 4px;
-  font-size: 0.8rem;
+  padding: 6px;
+  font-size: 0.85rem;
+  color: white;         /* ensure contrast */
 }
 
 .player-token.selected {
@@ -164,11 +164,20 @@ body {
   box-shadow: 0 0 10px var(--accent);
 }
 
+/* Bench tokens */
 .player-token.bench {
   position: relative;
-  margin-bottom: 6px;
-  background: #546e7a;
+  width: 100%;          /* full width bench rows */
+  height: auto;
+  border-radius: 8px;
+  background: #455a64;  /* lighter gray for readability */
+  padding: 10px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* left-aligned text */
 }
+
 
 /* ===========================
    TOKEN TEXT
@@ -253,3 +262,44 @@ body {
     border-top: 1px solid #263238;
   }
 }
+
+.player-number {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.player-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-top: 2px;
+}
+
+.minutes {
+  font-size: 0.8rem;
+  margin-top: 4px;
+  opacity: 0.9;
+}
+
+.minutes .active {
+  font-weight: bold;
+  color: #ffeb3b; /* yellow highlight */
+}
+
+.bench-container {
+  flex: 1;
+  background: #0f1a24;
+  border-left: 2px solid #263238;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.bench {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  border: 2px dashed #37474f; /* visible drop zone */
+  border-radius: 8px;
+  background: rgba(255,255,255,0.05);
+}
+
