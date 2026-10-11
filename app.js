@@ -56,7 +56,7 @@ const playerTertiaryInputEl = document.getElementById("playerTertiaryInput");
 const playerTwoWayInputEl = document.getElementById("playerTwoWayInput");
 const playerNotesInputEl = document.getElementById("playerNotesInput");
 const savePlayerBtn = document.getElementById("savePlayerBtn");
-const deletePlayerBtn = document.getElementById("deletePlayerBtn";
+const deletePlayerBtn = document.getElementById("deletePlayerBtn");
 
 // Attack/Defense inputs
 const playerAttackInputEl = document.getElementById("playerAttackInput");
@@ -465,6 +465,17 @@ function scoreFitForSlot(player, slotId) {
   const weights = POSITION_WEIGHTS[slotId];
   if (!weights) return -1;
 
+  // Position-aware: only consider players who have this slotId in their positions
+  const allPositions = [
+    ...(player.positions.primary || []),
+    ...(player.positions.secondary || []),
+    ...(player.positions.tertiary || [])
+  ];
+
+  if (!allPositions.includes(slotId)) {
+    return -999; // not trained for this position
+  }
+
   if (slotId === "Keep") {
     const isGK =
       (player.positions.primary && player.positions.primary.includes("Keep")) ||
@@ -771,7 +782,7 @@ function renderBench() {
 }
 
 // ===============================
-// SUGGESTIONS
+// SUGGESTIONS (position-aware)
 // ===============================
 
 function renderSuggestions() {
@@ -800,6 +811,7 @@ function renderSuggestions() {
         player: p,
         score: scoreFitForSlot(p, slotId)
       }))
+      .filter(r => r.score > -900) // only trained players
       .sort((a, b) => b.score - a.score)
       .slice(0, 1);
 
@@ -827,6 +839,7 @@ function renderSuggestions() {
       player: p,
       score: scoreFitForSlot(p, slotId)
     }))
+    .filter(r => r.score > -900) // only trained players
     .sort((a, b) => b.score - a.score);
 
   const bestBench = ranked[0];
