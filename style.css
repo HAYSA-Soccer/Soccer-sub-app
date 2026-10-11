@@ -1,3 +1,6 @@
+/* ============================================================
+   ROOT VARIABLES
+   ============================================================ */
 :root {
   --bg: #0b1724;
   --field-green: #1b5e20;
@@ -9,10 +12,15 @@
 
   --header-height: 56px;
   --footer-height: 64px;
+
+  --card-bg: #1f2933;
+  --panel-bg: #0f1a24;
+  --panel-border: #263238;
 }
 
-/* GLOBAL */
-
+/* ============================================================
+   GLOBAL
+   ============================================================ */
 body {
   margin: 0;
   background: var(--bg);
@@ -32,6 +40,7 @@ body {
   border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
+  color: #000;
 }
 
 .btn.small {
@@ -41,18 +50,18 @@ body {
 
 .btn.danger {
   background: var(--danger);
+  color: #fff;
 }
 
 .card {
-  background: #1f2933;
+  background: var(--card-bg);
   padding: 16px;
-  border-radius: 8px;
+  border-radius: 10px;
 }
 
-/* ===========================
+/* ============================================================
    SCREEN LAYOUT
-   =========================== */
-
+   ============================================================ */
 .screen {
   height: 100vh;
   display: flex;
@@ -68,7 +77,7 @@ body {
   gap: 12px;
   padding: 0 16px;
   background: #111827;
-  border-bottom: 1px solid #263238;
+  border-bottom: 1px solid var(--panel-border);
 }
 
 .screen-content {
@@ -87,16 +96,15 @@ body {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  border-top: 1px solid #263238;
+  border-top: 1px solid var(--panel-border);
   background: #111827;
 }
 
-/* ===========================
+/* ============================================================
    GAME SCREEN
-   =========================== */
-
+   ============================================================ */
 .game-layout {
-  display: flex;        /* ⭐ REQUIRED FIX */
+  display: flex;
   flex-direction: row;
   gap: 12px;
 }
@@ -105,7 +113,7 @@ body {
   flex: 2;
   display: flex;
   justify-content: center;
-  align-items: center;  /* ⭐ FIXED */
+  align-items: center;
 }
 
 .field {
@@ -118,6 +126,7 @@ body {
   border-radius: 12px;
 }
 
+/* Position slots */
 .position-slot {
   position: absolute;
   width: 70px;
@@ -141,10 +150,9 @@ body {
   box-shadow: 0 0 10px var(--accent);
 }
 
-/* ===========================
-   IMPROVED PLAYER TOKEN
-   =========================== */
-
+/* ============================================================
+   PLAYER TOKENS (FIELD)
+   ============================================================ */
 .player-token {
   position: absolute;
   transform: translate(-50%, -50%);
@@ -169,23 +177,44 @@ body {
   box-shadow: 0 0 10px var(--accent);
 }
 
+/* ============================================================
+   PLAYER TOKENS (BENCH — COMPACT)
+   ============================================================ */
 .player-token.bench {
   position: relative;
   width: 100%;
-  height: auto;
-  border-radius: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
   background: #455a64;
-  padding: 10px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+
+  font-size: 0.75rem;
 }
 
-/* ===========================
-   TOKEN TEXT
-   =========================== */
+.player-token.bench .player-number {
+  font-size: 0.85rem;
+  font-weight: bold;
+}
 
+.player-token.bench .player-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.player-token.bench .minutes {
+  font-size: 0.7rem;
+  opacity: 0.8;
+}
+
+/* ============================================================
+   TOKEN TEXT
+   ============================================================ */
 .player-number {
   font-weight: bold;
   font-size: 1rem;
@@ -217,9 +246,16 @@ body {
   color: #007bff;
 }
 
-/* ===========================
-   TEAM MANAGER
-   =========================== */
+/* ============================================================
+   TEAM MANAGER — CLEANER UI
+   ============================================================ */
+.team-meta.card,
+.roster-list.card {
+  padding: 12px;
+  border-radius: 10px;
+  background: #1a2330;
+  gap: 12px;
+}
 
 .team-meta label,
 .player-editor label {
@@ -233,11 +269,26 @@ body {
 .player-editor input,
 .player-editor textarea {
   margin-top: 4px;
-  padding: 8px 10px;
+  padding: 6px 10px;
   border-radius: 6px;
   border: 1px solid #37474f;
   background: #0f172a;
   color: var(--text);
+}
+
+.roster-list h3,
+.team-meta h3 {
+  margin-bottom: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+#rosterList li {
+  padding: 8px 10px;
+  background: #2a3442;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
 }
 
 .player-editor textarea {
@@ -251,21 +302,20 @@ body {
   gap: 8px;
 }
 
-/* ===========================
-   RESPONSIVE
-   =========================== */
-
+/* ============================================================
+   RESPONSIVE — MOBILE SIDE BENCH
+   ============================================================ */
 @media (max-width: 768px) {
 
   .screen-content {
-    overflow: hidden;  /* ⭐ REQUIRED FIX */
+    overflow: hidden;
     padding: 0;
     gap: 0;
   }
 
   .game-layout {
     display: flex;
-    flex-direction: row; /* SIDE BENCH */
+    flex-direction: row;
     height: calc(100vh - var(--header-height) - var(--footer-height));
     overflow: hidden;
     gap: 12px;
@@ -287,9 +337,9 @@ body {
   }
 
   .bench-container {
-    flex: 0 0 140px;
-    background: #0f1a24;
-    border-left: 2px solid #263238;
+    flex: 0 0 130px;
+    background: var(--panel-bg);
+    border-left: 2px solid var(--panel-border);
     padding: 8px;
     display: flex;
     flex-direction: column;
@@ -306,20 +356,13 @@ body {
     background: rgba(255,255,255,0.05);
   }
 
-  .player-token.bench {
-    width: 100%;
-    padding: 10px;
-    border-radius: 10px;
-    background: #455a64;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-  }
-
   .player-token {
     width: 60px;
     height: 60px;
-    transform: translate(-50%, -50%);
+  }
+
+  .btn.small {
+    padding: 5px 8px;
+    font-size: 0.75rem;
   }
 }
