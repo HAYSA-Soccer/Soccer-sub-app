@@ -10,9 +10,12 @@
   --header-height: 56px;
   --footer-height: 64px;
 
-  --bench-width-mobile: 130px;   /* ⭐ wider so icons NEVER cut off */
+  /* ⭐ MOBILE BENCH MUST BE WIDER */
+  --bench-width-mobile: 150px;
   --bench-width-desktop: 180px;
 }
+
+/* GLOBAL */
 
 body {
   margin: 0;
@@ -52,9 +55,7 @@ body {
   border-radius: 10px;
 }
 
-/* ===========================
-   SCREEN LAYOUT
-   =========================== */
+/* SCREEN LAYOUT */
 
 .screen {
   height: 100vh;
@@ -94,9 +95,7 @@ body {
   background: #111827;
 }
 
-/* ===========================
-   GAME SCREEN
-   =========================== */
+/* GAME SCREEN */
 
 .game-layout {
   display: flex;
@@ -121,9 +120,7 @@ body {
   border-radius: 12px;
 }
 
-/* ===========================
-   POSITION SLOTS
-   =========================== */
+/* POSITION SLOTS */
 
 .position-slot {
   position: absolute;
@@ -148,9 +145,7 @@ body {
   box-shadow: 0 0 10px var(--accent);
 }
 
-/* ===========================
-   FIELD TOKENS ONLY
-   =========================== */
+/* FIELD TOKENS ONLY */
 
 .player-token:not(.bench) {
   position: absolute;
@@ -176,9 +171,7 @@ body {
   box-shadow: 0 0 10px var(--accent);
 }
 
-/* ===========================
-   BENCH PANEL
-   =========================== */
+/* BENCH PANEL */
 
 .bench-container {
   flex: 0 0 var(--bench-width-desktop);
@@ -206,14 +199,12 @@ body {
   background: rgba(255,255,255,0.05);
 }
 
-/* ===========================
-   SUPER COMPACT BENCH TOKENS
-   =========================== */
+/* SUPER COMPACT BENCH TOKENS */
 
 .player-token.bench {
   position: relative;
   width: 100%;
-  height: auto;          /* <-- FIX: no circle height */
+  height: auto;
   padding: 4px 6px;
   margin-bottom: 4px;
 
@@ -243,9 +234,7 @@ body {
   opacity: 0.8;
 }
 
-/* ===========================
-   TEAM MANAGER
-   =========================== */
+/* TEAM MANAGER */
 
 .team-meta.card,
 .roster-list.card {
@@ -282,9 +271,7 @@ body {
   font-size: 0.85rem;
 }
 
-/* ===========================
-   MOBILE FIXES
-   =========================== */
+/* MOBILE FIXES */
 
 @media (max-width: 768px) {
 
@@ -319,7 +306,7 @@ body {
 
   .bench-container {
     flex: 0 0 var(--bench-width-mobile);
-    overflow-x: hidden; /* ⭐ prevents clipping */
+    overflow-x: hidden;
     padding: 6px;
     gap: 6px;
   }
