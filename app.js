@@ -653,21 +653,28 @@ function renderBench() {
     const token = document.createElement("div");
     token.className = "player-token bench";
 
+    // Highlight ON-DECK player
     if (player.id === onDeckPlayerId) {
       token.classList.add("on-deck");
     }
 
+    // Base token content
     token.innerHTML = `
       <div class="player-number">#${player.number}</div>
       <div class="player-name">${player.name}</div>
+
       <div class="minutes">
         <span class="bench-time ${player.onField ? "" : "active"}">B: ${player.minutesBench}</span>
         |
         <span class="field-time ${player.onField ? "active" : ""}">F: ${player.minutesField}</span>
       </div>
-      <div class="minutes">${Math.round(player.attackRating * 100)}/${Math.round(player.defenseRating * 100)} A/D</div>
+
+      <div class="minutes">
+        ${Math.round(player.attackRating * 100)}/${Math.round(player.defenseRating * 100)} A/D
+      </div>
     `;
 
+    // Show ON-DECK target position
     if (player.id === onDeckPlayerId && player.targetPosition) {
       const target = document.createElement("div");
       target.className = "target";
@@ -675,10 +682,26 @@ function renderBench() {
       token.appendChild(target);
     }
 
+    // Highlight selected bench player
     if (selectedPlayerId === player.id) {
       token.classList.add("selected");
     }
 
+    // ⭐ NEW: ON-DECK BUTTON
+    const onDeckBtn = document.createElement("button");
+    onDeckBtn.textContent = "On Deck";
+    onDeckBtn.className = "on-deck-btn";
+
+    onDeckBtn.addEventListener("click", (e) => {
+      e.stopPropagation(); // prevent selecting the player
+      onDeckPlayerId = player.id;
+      determineOnDeckTarget(player);
+      renderBench();
+    });
+
+    token.appendChild(onDeckBtn);
+
+    // ⭐ NORMAL TAP = SELECT PLAYER (original behavior restored)
     token.addEventListener("touchstart", (e) => {
       e.stopPropagation();
       e.preventDefault();
