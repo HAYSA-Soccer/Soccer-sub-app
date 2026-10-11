@@ -56,7 +56,7 @@ const playerTertiaryInputEl = document.getElementById("playerTertiaryInput");
 const playerTwoWayInputEl = document.getElementById("playerTwoWayInput");
 const playerNotesInputEl = document.getElementById("playerNotesInput");
 const savePlayerBtn = document.getElementById("savePlayerBtn");
-const deletePlayerBtn = document.getElementById("deletePlayerBtn";
+const deletePlayerBtn = document.getElementById("deletePlayerBtn");
 
 // ⭐ NEW: attack/defense inputs (assumed present in HTML)
 const playerAttackInputEl = document.getElementById("playerAttackInput");
@@ -437,15 +437,13 @@ function scoreFitForSlot(player, slotId) {
   const weights = POSITION_WEIGHTS[slotId];
   if (!weights) return -1;
 
-  // Only players who actually have "Keep" in their positions
-  // can ever be recommended for the GK slot.
   if (slotId === "Keep") {
     const isGK =
       (player.positions.primary && player.positions.primary.includes("Keep")) ||
       (player.positions.secondary && player.positions.secondary.includes("Keep")) ||
       (player.positions.tertiary && player.positions.tertiary.includes("Keep"));
 
-    if (!isGK) return -999; // impossible score → never recommended
+    if (!isGK) return -999;
   }
 
   const atk = typeof player.attackRating === "number" ? player.attackRating : 0.5;
@@ -465,7 +463,7 @@ function getNextPositionNeedingSub() {
   if (!assigned.length) return null;
 
   assigned.sort((a, b) => b.player.minutesField - a.player.minutesField);
-  return assigned[0]; // { player, slotId }
+  return assigned[0];
 }
 
 function determineOnDeckTarget(player) {
@@ -494,7 +492,6 @@ function renderField() {
 
   const slots = FORMATION_SLOTS[team.formation] || FORMATION_SLOTS["7v7-2-3-1"];
 
-  // DRAW POSITION SLOTS
   slots.forEach(slot => {
     const div = document.createElement("div");
     div.className = "position-slot";
@@ -507,7 +504,6 @@ function renderField() {
       div.classList.add("highlight");
     }
 
-    // MOBILE TAP
     div.addEventListener("touchstart", (e) => {
       e.stopPropagation();
       e.preventDefault();
@@ -519,7 +515,7 @@ function renderField() {
       player.onField = true;
       player.assignedPos = slot.id;
 
-      saveTeams();   // ⭐ ensure assignment is persisted
+      saveTeams();
 
       selectedPlayerId = null;
       renderField();
@@ -527,7 +523,6 @@ function renderField() {
       renderSuggestions();
     });
 
-    // DESKTOP CLICK
     div.addEventListener("click", (e) => {
       e.stopPropagation();
 
@@ -538,7 +533,7 @@ function renderField() {
       player.onField = true;
       player.assignedPos = slot.id;
 
-      saveTeams();   // ⭐ ensure assignment is persisted
+      saveTeams();
 
       selectedPlayerId = null;
       renderField();
@@ -549,7 +544,6 @@ function renderField() {
     fieldEl.appendChild(div);
   });
 
-  // DRAW PLAYERS ALREADY ON FIELD
   team.players
     .filter(p => p.onField && p.assignedPos)
     .forEach(player => {
@@ -606,7 +600,7 @@ function handleBenchDropZone() {
     player.assignedPos = null;
     selectedPlayerId = null;
 
-    saveTeams();   // ⭐ ensure removal is persisted
+    saveTeams();
 
     renderField();
     renderBench();
@@ -638,7 +632,7 @@ function handleBenchTap(benchPlayerId) {
   if (!team) return;
 
   if (!selectedPlayerId) {
-    selectedPlayerId = benchPlayerId;   // ✔ restore original behavior
+    selectedPlayerId = benchPlayerId;
     renderBench();
     renderField();
     return;
@@ -651,7 +645,7 @@ function handleBenchTap(benchPlayerId) {
     selectedPlayer.assignedPos = null;
     selectedPlayerId = null;
 
-    saveTeams();   // ⭐ ensure removal is persisted
+    saveTeams();
 
     renderBench();
     renderField();
@@ -675,12 +669,10 @@ function renderBench() {
     const token = document.createElement("div");
     token.className = "player-token bench";
 
-    // Subtle ON-DECK highlight
     if (player.id === onDeckPlayerId) {
       token.classList.add("on-deck");
     }
 
-    // Base token content
     token.innerHTML = `
       <div class="player-number">#${player.number}</div>
       <div class="player-name">${player.name}</div>
@@ -696,7 +688,6 @@ function renderBench() {
       </div>
     `;
 
-    // Show ON-DECK target position
     if (player.id === onDeckPlayerId && player.targetPosition) {
       const target = document.createElement("div");
       target.className = "target";
@@ -704,35 +695,31 @@ function renderBench() {
       token.appendChild(target);
     }
 
-    // Highlight selected bench player
     if (selectedPlayerId === player.id) {
       token.classList.add("selected");
     }
 
-    // ⭐ ON-DECK BUTTON (toggle)
     const onDeckBtn = document.createElement("button");
     onDeckBtn.textContent = (player.id === onDeckPlayerId) ? "Clear" : "On Deck";
     onDeckBtn.className = "on-deck-btn";
 
     onDeckBtn.addEventListener("click", (e) => {
-      e.stopPropagation(); // prevent selecting the player
+      e.stopPropagation();
 
-      // If already ON-DECK → clear it
       if (onDeckPlayerId === player.id) {
         onDeckPlayerId = null;
 
-        saveTeams();   // ⭐ persist ON-DECK change
+        saveTeams();
 
         renderBench();
         renderSuggestions();
         return;
       }
 
-      // Otherwise → set ON-DECK
       onDeckPlayerId = player.id;
       determineOnDeckTarget(player);
 
-      saveTeams();   // ⭐ persist ON-DECK change
+      saveTeams();
 
       renderBench();
       renderSuggestions();
@@ -740,7 +727,6 @@ function renderBench() {
 
     token.appendChild(onDeckBtn);
 
-    // ⭐ NORMAL TAP = SELECT PLAYER (original behavior)
     token.addEventListener("touchstart", (e) => {
       e.stopPropagation();
       e.preventDefault();
@@ -762,7 +748,6 @@ function renderBench() {
 
 function renderSuggestions() {
   suggestionListEl.innerHTML = "";
-  // You can leave this empty since bench ordering + ON-DECK covers the logic.
 }
 
 // ===============================
