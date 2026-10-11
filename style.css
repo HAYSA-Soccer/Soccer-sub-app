@@ -199,35 +199,50 @@ body {
 
 
 
+/* SUPER COMPACT BENCH TOKENS — FIXED */
 .player-token.bench {
   position: relative;
   width: 100%;
-  padding: 6px 8px;
+  height: auto;              /* override circle height */
+  padding: 4px 6px;          /* much smaller */
+  margin-bottom: 4px;
+
   border-radius: 6px;
   background: #455a64;
-  margin-bottom: 6px;
 
   display: flex;
-  flex-direction: column;
+  flex-direction: column;    /* stacked text */
+  justify-content: center;
+  align-items: flex-start;
   gap: 2px;
 
-  font-size: 0.75rem;
+  font-size: 0.7rem;         /* smaller text */
 }
 
+/* Bench text sizes */
 .player-token.bench .player-number {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: bold;
 }
 
 .player-token.bench .player-name {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
 }
 
 .player-token.bench .minutes {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   opacity: 0.8;
 }
+
+/* Prevent field token sizing from affecting bench */
+@media (max-width: 768px) {
+  .player-token:not(.bench) {
+    width: 60px;
+    height: 60px;
+  }
+}
+
 
 
 
