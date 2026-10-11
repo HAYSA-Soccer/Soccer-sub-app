@@ -362,13 +362,14 @@ resetClockBtn.addEventListener("click", () => {
 
 const FORMATION_SLOTS = {
   "7v7-2-3-1": [
-    { id: "GK", x: 45, y: 90 },
-    { id: "LB", x: 20, y: 65 },
-    { id: "RB", x: 70, y: 65 },
-    { id: "LCM", x: 30, y: 45 },
-    { id: "RCM", x: 65, y: 45 },
-    { id: "LW", x: 20, y: 25 },
-    { id: "RW", x: 70, y: 25 }
+    
+                   { id: "LCM", x: 30, y: 45 },      { id: "RCM", x: 65, y: 45 },
+    
+    
+    { id: "LB", x: 20, y: 65 },    { id: "CB", x: 45, y: 60 },      { id: "RB", x: 70, y: 65 },
+
+
+                                   { id: "GK", x: 45, y: 90 }
   ],
 
   "9v9-3-3-2": [
