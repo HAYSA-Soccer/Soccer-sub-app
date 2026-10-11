@@ -347,3 +347,16 @@ body {
   color: #aaa;
   margin-top: 2px;
 }
+
+#field {
+  position: relative;
+  background-color: #2f7d32;
+  background-image:
+    linear-gradient(#ffffff33 0 0),
+    linear-gradient(#ffffff33 0 0);
+  background-size: 100% 2px, 2px 100%;
+  background-position: center center, center center;
+  background-repeat: no-repeat;
+  border: 2px solid #ffffff66;
+  border-radius: 8px;
+}
