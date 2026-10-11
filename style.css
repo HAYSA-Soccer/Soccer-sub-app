@@ -128,7 +128,10 @@ body {
   align-items: center;
   color: var(--line);
   font-size: 0.7rem;
+
+  transform: translate(-50%, -50%); /* CENTER SLOT */
 }
+
 
 .position-slot.highlight {
   border-color: var(--accent);
