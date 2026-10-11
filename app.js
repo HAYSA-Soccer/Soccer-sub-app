@@ -747,8 +747,39 @@ function renderBench() {
 // ===============================
 
 function renderSuggestions() {
+  const team = getCurrentTeam();
+  if (!team) return;
+
   suggestionListEl.innerHTML = "";
+
+  const benchPlayers = team.players.filter(p => !p.onField);
+  const fieldPlayers = team.players.filter(p => p.onField);
+
+  if (!benchPlayers.length || !fieldPlayers.length) return;
+
+  // 1. Find the position most overdue for a sub
+  const next = getNextPositionNeedingSub();
+  if (!next) return;
+
+  const slotId = next.slotId;
+
+  // 2. Score bench players for that slot
+  const ranked = benchPlayers
+    .map(p => ({
+      player: p,
+      score: scoreFitForSlot(p, slotId)
+    }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3);
+
+  // 3. Output top 3 suggestions
+  ranked.forEach(({ player, score }) => {
+    const li = document.createElement("li");
+    li.textContent = `Best for ${slotId}: #${player.number} ${player.name} (${Math.round(score * 100)}%)`;
+    suggestionListEl.appendChild(li);
+  });
 }
+
 
 // ===============================
 // NAVIGATION BUTTONS
