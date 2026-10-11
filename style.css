@@ -96,6 +96,7 @@ body {
    =========================== */
 
 .game-layout {
+  display: flex;        /* ⭐ REQUIRED FIX */
   flex-direction: row;
   gap: 12px;
 }
@@ -104,7 +105,7 @@ body {
   flex: 2;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;  /* ⭐ FIXED */
 }
 
 .field {
@@ -119,31 +120,20 @@ body {
 
 .position-slot {
   position: absolute;
-
-  /* Bigger circle so words fit */
   width: 70px;
   height: 70px;
   border-radius: 50%;
   border: 2px dashed var(--line);
-
-  /* Center the text inside */
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
-
-  /* Allow wrapping for long words */
   white-space: normal;
   line-height: 1.1;
-
   color: var(--line);
   font-size: 0.7rem;
-
-  /* Center the circle itself on (x%, y%) */
   transform: translate(-50%, -50%);
 }
-
-
 
 .position-slot.highlight {
   border-color: var(--accent);
@@ -157,47 +147,40 @@ body {
 
 .player-token {
   position: absolute;
-  transform: translate(-50%, -50%); /* CENTER FIX */
-
-  width: 72px;          /* bigger */
+  transform: translate(-50%, -50%);
+  width: 72px;
   height: 72px;
-  border-radius: 50%;   /* circular */
-  background: #2196f3;  /* brighter blue */
-
+  border-radius: 50%;
+  background: #2196f3;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0,0,0,0.4);
   text-align: center;
-
   padding: 6px;
   font-size: 0.85rem;
-  color: white;         /* ensure contrast */
+  color: white;
 }
-
 
 .player-token.selected {
   outline: 3px solid var(--accent);
   box-shadow: 0 0 10px var(--accent);
 }
 
-/* Bench tokens */
 .player-token.bench {
   position: relative;
-  width: 100%;          /* full width bench rows */
+  width: 100%;
   height: auto;
   border-radius: 8px;
-  background: #455a64;  /* lighter gray for readability */
+  background: #455a64;
   padding: 10px;
   margin-bottom: 8px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* left-aligned text */
+  align-items: flex-start;
 }
-
 
 /* ===========================
    TOKEN TEXT
@@ -271,17 +254,23 @@ body {
 /* ===========================
    RESPONSIVE
    =========================== */
+
 @media (max-width: 768px) {
 
-  /* Main content becomes a horizontal layout */
-  .game-layout {
-    display: flex;
-    flex-direction: row; /* <-- SIDE-BENCH */
-    height: calc(100vh - var(--header-height) - var(--footer-height));
-    overflow: hidden;
+  .screen-content {
+    overflow: hidden;  /* ⭐ REQUIRED FIX */
+    padding: 0;
+    gap: 0;
   }
 
-  /* Field takes most of the width */
+  .game-layout {
+    display: flex;
+    flex-direction: row; /* SIDE BENCH */
+    height: calc(100vh - var(--header-height) - var(--footer-height));
+    overflow: hidden;
+    gap: 12px;
+  }
+
   .field-container {
     flex: 1;
     display: flex;
@@ -294,16 +283,14 @@ body {
     width: 100%;
     height: 100%;
     max-width: none;
-    aspect-ratio: auto; /* allow full height */
+    aspect-ratio: auto;
   }
 
-  /* Bench sits on the right side */
   .bench-container {
-    flex: 0 0 140px; /* width of the bench panel */
+    flex: 0 0 140px;
     background: #0f1a24;
     border-left: 2px solid #263238;
     padding: 8px;
-
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -319,7 +306,6 @@ body {
     background: rgba(255,255,255,0.05);
   }
 
-  /* Bench tokens */
   .player-token.bench {
     width: 100%;
     padding: 10px;
@@ -331,7 +317,6 @@ body {
     gap: 4px;
   }
 
-  /* Field tokens */
   .player-token {
     width: 60px;
     height: 60px;
