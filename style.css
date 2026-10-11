@@ -10,8 +10,8 @@
   --header-height: 56px;
   --footer-height: 64px;
 
-  --bench-width-mobile: 110px;   /* ⭐ tuned so it NEVER cuts off */
-  --bench-width-desktop: 180px;  /* ⭐ desktop gets more space */
+  --bench-width-mobile: 130px;   /* ⭐ wider so icons NEVER cut off */
+  --bench-width-desktop: 180px;
 }
 
 body {
@@ -52,6 +52,9 @@ body {
   border-radius: 10px;
 }
 
+/* ===========================
+   SCREEN LAYOUT
+   =========================== */
 
 .screen {
   height: 100vh;
@@ -91,6 +94,9 @@ body {
   background: #111827;
 }
 
+/* ===========================
+   GAME SCREEN
+   =========================== */
 
 .game-layout {
   display: flex;
@@ -115,7 +121,9 @@ body {
   border-radius: 12px;
 }
 
-
+/* ===========================
+   POSITION SLOTS
+   =========================== */
 
 .position-slot {
   position: absolute;
@@ -140,10 +148,11 @@ body {
   box-shadow: 0 0 10px var(--accent);
 }
 
+/* ===========================
+   FIELD TOKENS ONLY
+   =========================== */
 
-
-
-.player-token {
+.player-token:not(.bench) {
   position: absolute;
   transform: translate(-50%, -50%);
   width: 72px;
@@ -167,8 +176,9 @@ body {
   box-shadow: 0 0 10px var(--accent);
 }
 
-
-
+/* ===========================
+   BENCH PANEL
+   =========================== */
 
 .bench-container {
   flex: 0 0 var(--bench-width-desktop);
@@ -196,30 +206,28 @@ body {
   background: rgba(255,255,255,0.05);
 }
 
+/* ===========================
+   SUPER COMPACT BENCH TOKENS
+   =========================== */
 
-
-
-/* SUPER COMPACT BENCH TOKENS — FIXED */
 .player-token.bench {
   position: relative;
   width: 100%;
-  height: auto;              /* override circle height */
-  padding: 4px 6px;          /* much smaller */
+  height: auto;          /* <-- FIX: no circle height */
+  padding: 4px 6px;
   margin-bottom: 4px;
 
   border-radius: 6px;
   background: #455a64;
 
   display: flex;
-  flex-direction: column;    /* stacked text */
-  justify-content: center;
+  flex-direction: column;
   align-items: flex-start;
   gap: 2px;
 
-  font-size: 0.7rem;         /* smaller text */
+  font-size: 0.7rem;
 }
 
-/* Bench text sizes */
 .player-token.bench .player-number {
   font-size: 0.75rem;
   font-weight: bold;
@@ -235,18 +243,9 @@ body {
   opacity: 0.8;
 }
 
-/* Prevent field token sizing from affecting bench */
-@media (max-width: 768px) {
-  .player-token:not(.bench) {
-    width: 60px;
-    height: 60px;
-  }
-}
-
-
-
-
-
+/* ===========================
+   TEAM MANAGER
+   =========================== */
 
 .team-meta.card,
 .roster-list.card {
@@ -283,7 +282,9 @@ body {
   font-size: 0.85rem;
 }
 
-
+/* ===========================
+   MOBILE FIXES
+   =========================== */
 
 @media (max-width: 768px) {
 
@@ -317,19 +318,16 @@ body {
   }
 
   .bench-container {
-    flex: 0 0 var(--bench-width-mobile); /* ⭐ NEVER CUTS OFF */
-    background: #0f1a24;
-    border-left: 2px solid #263238;
+    flex: 0 0 var(--bench-width-mobile);
+    overflow-x: hidden; /* ⭐ prevents clipping */
     padding: 6px;
-    display: flex;
-    flex-direction: column;
     gap: 6px;
-    overflow-y: auto;
   }
 
-  .player-token {
-    width: 60px;
-    height: 60px;
+  /* FIELD TOKENS ONLY — MOBILE */
+  .player-token:not(.bench) {
+    width: 50px;
+    height: 50px;
   }
 
   .btn.small {
@@ -337,18 +335,3 @@ body {
     font-size: 0.75rem;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
