@@ -11,7 +11,7 @@ let clockInterval = null;
 
 let editingPlayerId = null;
 let selectedPlayerId = null;
-let onDeckPlayerId = null; // ON-DECK tracking
+let onDeckPlayerId = null; // ⭐ ON-DECK tracking
 
 // ===============================
 // DOM ELEMENTS
@@ -56,9 +56,9 @@ const playerTertiaryInputEl = document.getElementById("playerTertiaryInput");
 const playerTwoWayInputEl = document.getElementById("playerTwoWayInput");
 const playerNotesInputEl = document.getElementById("playerNotesInput");
 const savePlayerBtn = document.getElementById("savePlayerBtn");
-const deletePlayerBtn = document.getElementById("deletePlayerBtn";
+const deletePlayerBtn = document.getElementById("deletePlayerBtn");
 
-// Attack/Defense inputs (numeric 0–1)
+// ⭐ NEW: attack/defense inputs (assumed present in HTML)
 const playerAttackInputEl = document.getElementById("playerAttackInput");
 const playerDefenseInputEl = document.getElementById("playerDefenseInput");
 
@@ -103,11 +103,11 @@ function loadTeams() {
         if (typeof p.minutesField !== "number") p.minutesField = 0;
         if (typeof p.minutesBench !== "number") p.minutesBench = 0;
 
-        // Attack/defense weighting
+        // ⭐ NEW: attack/defense weighting
         if (typeof p.attackRating !== "number") p.attackRating = 0.5;
         if (typeof p.defenseRating !== "number") p.defenseRating = 0.5;
 
-        // Target position for ON-DECK
+        // ⭐ NEW: target position for ON-DECK
         if (!("targetPosition" in p)) p.targetPosition = null;
       });
     });
@@ -413,6 +413,7 @@ const FORMATION_SLOTS = {
   ]
 };
 
+// attack/defense weighting per slot
 const POSITION_WEIGHTS = {
   "Left Striker": { attack: 0.9, defense: 0.1 },
   "Right Striker": { attack: 0.9, defense: 0.1 },
@@ -479,6 +480,7 @@ function renderField() {
 
   const slots = FORMATION_SLOTS[team.formation] || FORMATION_SLOTS["7v7-2-3-1"];
 
+  // DRAW POSITION SLOTS
   slots.forEach(slot => {
     const div = document.createElement("div");
     div.className = "position-slot";
@@ -491,6 +493,7 @@ function renderField() {
       div.classList.add("highlight");
     }
 
+    // MOBILE TAP
     div.addEventListener("touchstart", (e) => {
       e.stopPropagation();
       e.preventDefault();
@@ -508,6 +511,7 @@ function renderField() {
       renderSuggestions();
     });
 
+    // DESKTOP CLICK
     div.addEventListener("click", (e) => {
       e.stopPropagation();
 
@@ -527,6 +531,7 @@ function renderField() {
     fieldEl.appendChild(div);
   });
 
+  // DRAW PLAYERS ALREADY ON FIELD
   team.players
     .filter(p => p.onField && p.assignedPos)
     .forEach(player => {
@@ -692,11 +697,12 @@ function renderBench() {
 }
 
 // ===============================
-// SUGGESTIONS
+// SUGGESTIONS (minimal / optional)
 // ===============================
 
 function renderSuggestions() {
   suggestionListEl.innerHTML = "";
+  // You can leave this empty since bench ordering + ON-DECK covers the logic.
 }
 
 // ===============================
