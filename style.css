@@ -323,21 +323,27 @@ body {
   }
 }
 
-
+/* ⭐ ON-DECK BUTTON */
 .on-deck-btn {
   font-size: 0.65rem;
   padding: 2px 6px;
   margin-top: 4px;
   background: var(--accent);
-  color: #fff;
+  color: #000;
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
 
+/* ⭐ ULTRA-SUBTLE ON-DECK HIGHLIGHT */
 .player-token.on-deck {
-  border-left: 3px solid #e5d17a;
-  background: #faf7e2;
+  border-left: 2px solid rgba(214, 197, 107, 0.35); /* soft gold */
+  background: transparent; /* no yellow block */
 }
 
+/* ⭐ ON-DECK TARGET TEXT */
+.player-token .target {
+  font-size: 0.65rem;
+  color: #aaa;
+  margin-top: 2px;
 }
