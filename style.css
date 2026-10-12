@@ -427,3 +427,37 @@ body {
   pointer-events: auto;
   z-index: 10;
 }
+
+/* ========================================= */
+/* FIX: Make pitch markings subtle & distinct */
+/* ========================================= */
+
+/* All pitch lines should be faint and behind everything */
+.field::before,
+.field::after,
+.field .penalty-box,
+.field .goal-box,
+.field .goal-line,
+.field .penalty-spot,
+.field .corner {
+  pointer-events: none;          /* never block clicks */
+  z-index: 0;                    /* always behind circles */
+  border-color: rgba(255,255,255,0.18);
+  background-color: rgba(255,255,255,0.18);
+}
+
+/* Center circle specifically should be VERY faint */
+.field::after {
+  border-color: rgba(255,255,255,0.12);
+}
+
+/* Penalty spot should be tiny and subtle */
+.field .penalty-spot {
+  background-color: rgba(255,255,255,0.25);
+}
+
+/* Goal line should be slightly stronger than other lines */
+.field .goal-line {
+  background-color: rgba(255,255,255,0.35);
+}
+
