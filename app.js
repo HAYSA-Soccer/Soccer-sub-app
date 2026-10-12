@@ -56,7 +56,7 @@ const playerTertiaryInputEl = document.getElementById("playerTertiaryInput");
 const playerTwoWayInputEl = document.getElementById("playerTwoWayInput");
 const playerNotesInputEl = document.getElementById("playerNotesInput");
 const savePlayerBtn = document.getElementById("savePlayerBtn");
-const deletePlayerBtn = document.getElementById("deletePlayerBtn";
+const deletePlayerBtn = document.getElementById("deletePlayerBtn");
 
 // Attack/Defense inputs
 const playerAttackInputEl = document.getElementById("playerAttackInput");
