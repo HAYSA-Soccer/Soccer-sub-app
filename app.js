@@ -550,7 +550,18 @@ function determineOnDeckTarget(player) {
 function renderField() {
   const team = getCurrentTeam();
   if (!team) return;
-  fieldEl.innerHTML = "";
+
+  // REPLACE the wipe with pitch markup
+  fieldEl.innerHTML = `
+    <div class="penalty-box"></div>
+    <div class="goal-box"></div>
+    <div class="goal-line"></div>
+    <div class="penalty-spot"></div>
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+  `;
 
   // SAFETY PATCH: fix corrupted players (onField true but no assignedPos)
   team.players.forEach(p => {
@@ -559,6 +570,7 @@ function renderField() {
     }
   });
   saveTeams();
+
 
   const slots = FORMATION_SLOTS[team.formation] || FORMATION_SLOTS["7v7-2-3-1"];
 
