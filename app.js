@@ -6,12 +6,15 @@ const STORAGE_KEY_TEAMS = "soccer_sub_teams_v5";
 
 let teams = [];
 let currentTeamId = null;
+
 let gameClockSeconds = 0;
 let clockInterval = null;
+let currentHalf = 1; // 1 or 2
+const HALF_DURATION_SECONDS = 25 * 60; // tweak as needed
 
 let editingPlayerId = null;
 let selectedPlayerId = null;
-let onDeckPlayerId = null; // ON-DECK tracking
+let onDeckPlayerId = null; // single auto on-deck
 
 // ===============================
 // DOM ELEMENTS
@@ -94,7 +97,12 @@ function normalizePositionName(name) {
     "Left Back": ["Left Back", "LB", "Left Defender"],
     "Right Back": ["Right Back", "RB", "Right Defender"],
     "Center Back": ["Center Back", "CB", "Center Defender"],
-    "Keep": ["Keep", "GK", "Goalie", "Goalkeeper"]
+    "Keep": ["Keep", "GK", "Goalie", "Goalkeeper"],
+    "ST1": ["ST1", "Striker 1", "ST"],
+    "ST2": ["ST2", "Striker 2", "ST"],
+    "CAM": ["CAM", "Attacking Mid", "10"],
+    "Left Center Defensive Mid": ["Left Center Defensive Mid", "LCDM", "CDM"],
+    "Right Center Defensive Mid": ["Right Center Defensive Mid", "RCDM", "CDM"]
   };
 
   for (const slot in map) {
@@ -389,8 +397,18 @@ deletePlayerBtn.addEventListener("click", () => {
 });
 
 // ===============================
-// CLOCK
+// CLOCK (WITH HALVES)
 // ===============================
+
+function formatClock(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+function updateClockDisplay() {
+  gameClockEl.textContent = `H${currentHalf} ${formatClock(gameClockSeconds)}`;
+}
 
 function updatePlayerMinutes() {
   const team = getCurrentTeam();
@@ -407,23 +425,37 @@ function updatePlayerMinutes() {
   saveTeams();
 }
 
-function formatClock(seconds) {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-}
+function tickClock() {
+  const team = getCurrentTeam();
+  if (!team) return;
 
-function updateClockDisplay() {
-  gameClockEl.textContent = formatClock(gameClockSeconds);
+  gameClockSeconds += 1;
+
+  if (gameClockSeconds >= HALF_DURATION_SECONDS) {
+    clearInterval(clockInterval);
+    clockInterval = null;
+
+    if (currentHalf === 1) {
+      currentHalf = 2;
+      gameClockSeconds = 0;
+      updateClockDisplay();
+      alert("Second Half Starting");
+    } else {
+      alert("Match Finished");
+    }
+  } else {
+    updateClockDisplay();
+  }
+
+  updatePlayerMinutes();
+  renderBench();
+  renderField();
+  renderSuggestions();
 }
 
 startClockBtn.addEventListener("click", () => {
   if (clockInterval) return;
-  clockInterval = setInterval(() => {
-    gameClockSeconds += 1;
-    updateClockDisplay();
-    updatePlayerMinutes();
-  }, 1000);
+  clockInterval = setInterval(tickClock, 1000);
 });
 
 pauseClockBtn.addEventListener("click", () => {
@@ -434,15 +466,28 @@ pauseClockBtn.addEventListener("click", () => {
 
 resetClockBtn.addEventListener("click", () => {
   gameClockSeconds = 0;
+  currentHalf = 1;
   updateClockDisplay();
   if (clockInterval) {
     clearInterval(clockInterval);
     clockInterval = null;
   }
+
+  const team = getCurrentTeam();
+  if (team) {
+    team.players.forEach(p => {
+      p.minutesField = 0;
+      p.minutesBench = 0;
+    });
+    saveTeams();
+    renderBench();
+    renderField();
+    renderSuggestions();
+  }
 });
 
 // ===============================
-// FIELD + BENCH RENDERING
+// FIELD + FORMATIONS
 // ===============================
 
 const FORMATION_SLOTS = {
@@ -486,6 +531,10 @@ const POSITION_WEIGHTS = {
   "Keep": { attack: 0.0, defense: 1.0 }
 };
 
+// ===============================
+// SUBSTITUTION / SUGGESTION ENGINE
+// ===============================
+
 function scoreFitForSlot(player, slotId) {
   const weights = POSITION_WEIGHTS[slotId];
   if (!weights) return -1;
@@ -528,30 +577,83 @@ function getNextPositionNeedingSub() {
   return assigned[0];
 }
 
-function determineOnDeckTarget(player) {
+function getNextSuggestedSub() {
   const team = getCurrentTeam();
-  if (!team) return;
+  if (!team) return null;
 
-  const slots = FORMATION_SLOTS[team.formation] || [];
-  let bestSlot = null;
-  let bestScore = -1;
+  const benchPlayers = team.players.filter(p => !p.onField);
+  if (!benchPlayers.length) return null;
 
-  slots.forEach(slot => {
-    const score = scoreFitForSlot(player, slot.id);
-    if (score > bestScore) {
-      bestScore = score;
-      bestSlot = slot.id;
-    }
+  const slots = FORMATION_SLOTS[team.formation] || FORMATION_SLOTS["7v7-2-3-1"];
+
+  // empty slot first
+  const emptySlots = slots.filter(slot => {
+    return !team.players.some(p => p.onField && p.assignedPos === slot.id);
   });
 
-  player.targetPosition = bestSlot;
+  if (emptySlots.length > 0) {
+    const slotId = emptySlots[0].id;
+
+    const ranked = benchPlayers
+      .map(p => ({
+        player: p,
+        score: scoreFitForSlot(p, slotId)
+      }))
+      .filter(r => r.score > -900)
+      .sort((a, b) => b.score - a.score);
+
+    const best = ranked[0];
+    if (!best) return null;
+
+    return {
+      benchPlayerId: best.player.id,
+      fieldPlayerId: null,
+      slotId,
+      score: best.score,
+      type: "fill"
+    };
+  }
+
+  const next = getNextPositionNeedingSub();
+  if (!next) return null;
+
+  const fieldPlayer = next.player;
+  const slotId = next.slotId;
+  const fieldScore = scoreFitForSlot(fieldPlayer, slotId);
+
+  const ranked = benchPlayers
+    .map(p => ({
+      player: p,
+      score: scoreFitForSlot(p, slotId)
+    }))
+    .filter(r => r.score > -900)
+    .sort((a, b) => b.score - a.score);
+
+  const bestBench = ranked[0];
+  if (!bestBench) return null;
+
+  const fieldNeedsRest = fieldPlayer.minutesField > fieldPlayer.minutesBench;
+  const benchIsBetter = bestBench.score > fieldScore;
+
+  if (!fieldNeedsRest && !benchIsBetter) return null;
+
+  return {
+    benchPlayerId: bestBench.player.id,
+    fieldPlayerId: fieldPlayer.id,
+    slotId,
+    score: bestBench.score,
+    type: "swap"
+  };
 }
+
+// ===============================
+// FIELD RENDERING
+// ===============================
 
 function renderField() {
   const team = getCurrentTeam();
   if (!team) return;
 
-  // REPLACE the wipe with pitch markup
   fieldEl.innerHTML = `
     <div class="penalty-box"></div>
     <div class="goal-box"></div>
@@ -563,14 +665,12 @@ function renderField() {
     <div class="corner br"></div>
   `;
 
-  // SAFETY PATCH: fix corrupted players (onField true but no assignedPos)
   team.players.forEach(p => {
     if (p.onField && !p.assignedPos) {
       p.onField = false;
     }
   });
   saveTeams();
-
 
   const slots = FORMATION_SLOTS[team.formation] || FORMATION_SLOTS["7v7-2-3-1"];
 
@@ -642,6 +742,7 @@ function renderField() {
         selectedPlayerId = player.id;
         renderField();
         renderBench();
+        renderSuggestions();
       });
 
       token.addEventListener("click", (e) => {
@@ -649,6 +750,7 @@ function renderField() {
         selectedPlayerId = player.id;
         renderField();
         renderBench();
+        renderSuggestions();
       });
 
       fieldEl.appendChild(token);
@@ -681,9 +783,12 @@ function handleBenchDropZone() {
 }
 
 function sortBenchPlayers(players) {
+  const suggestion = getNextSuggestedSub();
+  const suggestedId = suggestion ? suggestion.benchPlayerId : null;
+
   return players.slice().sort((a, b) => {
-    if (a.id === onDeckPlayerId) return -1;
-    if (b.id === onDeckPlayerId) return 1;
+    if (a.id === suggestedId) return -1;
+    if (b.id === suggestedId) return 1;
 
     if (b.minutesBench !== a.minutesBench) {
       return b.minutesBench - a.minutesBench;
@@ -735,6 +840,9 @@ function renderBench() {
   if (!team) return;
   benchEl.innerHTML = "";
 
+  const suggestion = getNextSuggestedSub();
+  onDeckPlayerId = suggestion ? suggestion.benchPlayerId : null;
+
   const benchPlayers = sortBenchPlayers(team.players.filter(p => !p.onField));
 
   benchPlayers.forEach(player => {
@@ -760,44 +868,24 @@ function renderBench() {
       </div>
     `;
 
-    if (player.id === onDeckPlayerId && player.targetPosition) {
-      const target = document.createElement("div");
-      target.className = "target";
-      target.textContent = `On Deck for: ${player.targetPosition}`;
-      token.appendChild(target);
+    if (suggestion && suggestion.benchPlayerId === player.id) {
+      const slotId = suggestion.slotId;
+      const rec = document.createElement("div");
+      rec.className = "recommended-sub";
+
+      if (suggestion.type === "fill") {
+        rec.textContent = `Next Sub: Fill ${slotId}`;
+      } else {
+        const target = getPlayerById(suggestion.fieldPlayerId);
+        rec.textContent = `Next Sub: Replace ${target.name} at ${slotId}`;
+      }
+
+      token.appendChild(rec);
     }
 
     if (selectedPlayerId === player.id) {
       token.classList.add("selected");
     }
-
-    const onDeckBtn = document.createElement("button");
-    onDeckBtn.textContent = (player.id === onDeckPlayerId) ? "Clear" : "On Deck";
-    onDeckBtn.className = "on-deck-btn";
-
-    onDeckBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-
-      if (onDeckPlayerId === player.id) {
-        onDeckPlayerId = null;
-
-        saveTeams();
-
-        renderBench();
-        renderSuggestions();
-        return;
-      }
-
-      onDeckPlayerId = player.id;
-      determineOnDeckTarget(player);
-
-      saveTeams();
-
-      renderBench();
-      renderSuggestions();
-    });
-
-    token.appendChild(onDeckBtn);
 
     token.addEventListener("touchstart", (e) => {
       e.stopPropagation();
@@ -824,67 +912,22 @@ function renderSuggestions() {
 
   suggestionListEl.innerHTML = "";
 
-  const benchPlayers = team.players.filter(p => !p.onField);
-  const fieldPlayers = team.players.filter(p => p.onField);
+  const suggestion = getNextSuggestedSub();
+  if (!suggestion) return;
 
-  if (!benchPlayers.length) return;
+  const benchPlayer = getPlayerById(suggestion.benchPlayerId);
+  const slotId = suggestion.slotId;
 
-  const slots = FORMATION_SLOTS[team.formation] || FORMATION_SLOTS["7v7-2-3-1"];
-
-  // STEP 1 — Look for empty positions first
-  const emptySlots = slots.filter(slot => {
-    return !team.players.some(p => p.onField && p.assignedPos === slot.id);
-  });
-
-  if (emptySlots.length > 0) {
-    const slotId = emptySlots[0].id;
-
-    const ranked = benchPlayers
-      .map(p => ({
-        player: p,
-        score: scoreFitForSlot(p, slotId)
-      }))
-      .filter(r => r.score > -900) // only trained players
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 1);
-
-    const best = ranked[0];
-    if (!best) return;
-
+  if (suggestion.type === "fill") {
     const li = document.createElement("li");
-    li.textContent = `Fill ${slotId}: #${best.player.number} ${best.player.name} (${Math.round(best.score * 100)}%)`;
+    li.textContent = `Fill ${slotId}: #${benchPlayer.number} ${benchPlayer.name}`;
     suggestionListEl.appendChild(li);
     return;
   }
 
-  // STEP 2 — No empty slots → find most overdue field player
-  const next = getNextPositionNeedingSub();
-  if (!next) return;
-
-  const fieldPlayer = next.player;
-  const slotId = next.slotId;
-
-  const fieldScore = scoreFitForSlot(fieldPlayer, slotId);
-
-  // STEP 3 — Score bench players for that slot
-  const ranked = benchPlayers
-    .map(p => ({
-      player: p,
-      score: scoreFitForSlot(p, slotId)
-    }))
-    .filter(r => r.score > -900) // only trained players
-    .sort((a, b) => b.score - a.score);
-
-  const bestBench = ranked[0];
-  if (!bestBench) return;
-
-  const fieldNeedsRest = fieldPlayer.minutesField > fieldPlayer.minutesBench;
-  const benchIsBetter = bestBench.score > fieldScore;
-
-  if (!fieldNeedsRest && !benchIsBetter) return;
-
+  const fieldPlayer = getPlayerById(suggestion.fieldPlayerId);
   const li = document.createElement("li");
-  li.textContent = `Swap at ${slotId}: #${bestBench.player.number} ${bestBench.player.name} (${Math.round(bestBench.score * 100)}%)`;
+  li.textContent = `Swap at ${slotId}: #${benchPlayer.number} ${benchPlayer.name} for #${fieldPlayer.number} ${fieldPlayer.name}`;
   suggestionListEl.appendChild(li);
 }
 
