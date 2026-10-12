@@ -2,19 +2,16 @@
 // BASIC DATA MODEL
 // ===============================
 
-const STORAGE_KEY_TEAMS = "soccer_sub_teams_v5";
+const STORAGE_KEY_TEAMS = "soccer_sub_teams_v6";
 
 let teams = [];
 let currentTeamId = null;
-
 let gameClockSeconds = 0;
+let currentHalf = 1;
 let clockInterval = null;
-let currentHalf = 1; // 1 or 2
-const HALF_DURATION_SECONDS = 25 * 60; // tweak as needed
 
 let editingPlayerId = null;
 let selectedPlayerId = null;
-let onDeckPlayerId = null; // single auto on-deck
 
 // ===============================
 // DOM ELEMENTS
@@ -59,7 +56,7 @@ const playerTertiaryInputEl = document.getElementById("playerTertiaryInput");
 const playerTwoWayInputEl = document.getElementById("playerTwoWayInput");
 const playerNotesInputEl = document.getElementById("playerNotesInput");
 const savePlayerBtn = document.getElementById("savePlayerBtn");
-const deletePlayerBtn = document.getElementById("deletePlayerBtn");
+const deletePlayerBtn = document.getElementById("deletePlayerBtn";
 
 // Attack/Defense inputs
 const playerAttackInputEl = document.getElementById("playerAttackInput");
@@ -98,11 +95,11 @@ function normalizePositionName(name) {
     "Right Back": ["Right Back", "RB", "Right Defender"],
     "Center Back": ["Center Back", "CB", "Center Defender"],
     "Keep": ["Keep", "GK", "Goalie", "Goalkeeper"],
-    "ST1": ["ST1", "Striker 1", "ST"],
-    "ST2": ["ST2", "Striker 2", "ST"],
-    "CAM": ["CAM", "Attacking Mid", "10"],
-    "Left Center Defensive Mid": ["Left Center Defensive Mid", "LCDM", "CDM"],
-    "Right Center Defensive Mid": ["Right Center Defensive Mid", "RCDM", "CDM"]
+    "ST1": ["ST1", "Striker", "ST", "Forward"],
+    "ST2": ["ST2", "Striker", "ST", "Forward"],
+    "CAM": ["CAM", "AM", "Attacking Mid"],
+    "Left Center Defensive Mid": ["Left Center Defensive Mid", "LCDM"],
+    "Right Center Defensive Mid": ["Right Center Defensive Mid", "RCDM"]
   };
 
   for (const slot in map) {
@@ -146,9 +143,9 @@ function loadTeams() {
     teams = [
       {
         id: "default",
-        name: "U12 Travel",
-        formation: "7v7-2-3-1",
-        players: []
+      name: "U12 Travel",
+      formation: "7v7-2-3-1",
+      players: []
       }
     ];
   }
@@ -397,18 +394,8 @@ deletePlayerBtn.addEventListener("click", () => {
 });
 
 // ===============================
-// CLOCK (WITH HALVES)
+// CLOCK (with halves)
 // ===============================
-
-function formatClock(seconds) {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-}
-
-function updateClockDisplay() {
-  gameClockEl.textContent = `H${currentHalf} ${formatClock(gameClockSeconds)}`;
-}
 
 function updatePlayerMinutes() {
   const team = getCurrentTeam();
@@ -425,37 +412,24 @@ function updatePlayerMinutes() {
   saveTeams();
 }
 
-function tickClock() {
-  const team = getCurrentTeam();
-  if (!team) return;
+function formatClock(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
 
-  gameClockSeconds += 1;
-
-  if (gameClockSeconds >= HALF_DURATION_SECONDS) {
-    clearInterval(clockInterval);
-    clockInterval = null;
-
-    if (currentHalf === 1) {
-      currentHalf = 2;
-      gameClockSeconds = 0;
-      updateClockDisplay();
-      alert("Second Half Starting");
-    } else {
-      alert("Match Finished");
-    }
-  } else {
-    updateClockDisplay();
-  }
-
-  updatePlayerMinutes();
-  renderBench();
-  renderField();
-  renderSuggestions();
+function updateClockDisplay() {
+  gameClockEl.textContent = `H${currentHalf} ${formatClock(gameClockSeconds)}`;
 }
 
 startClockBtn.addEventListener("click", () => {
   if (clockInterval) return;
-  clockInterval = setInterval(tickClock, 1000);
+  clockInterval = setInterval(() => {
+    gameClockSeconds += 1;
+    updateClockDisplay();
+    updatePlayerMinutes();
+    renderField();
+  }, 1000);
 });
 
 pauseClockBtn.addEventListener("click", () => {
@@ -466,28 +440,16 @@ pauseClockBtn.addEventListener("click", () => {
 
 resetClockBtn.addEventListener("click", () => {
   gameClockSeconds = 0;
-  currentHalf = 1;
+  currentHalf = currentHalf === 1 ? 2 : 1;
   updateClockDisplay();
   if (clockInterval) {
     clearInterval(clockInterval);
     clockInterval = null;
   }
-
-  const team = getCurrentTeam();
-  if (team) {
-    team.players.forEach(p => {
-      p.minutesField = 0;
-      p.minutesBench = 0;
-    });
-    saveTeams();
-    renderBench();
-    renderField();
-    renderSuggestions();
-  }
 });
 
 // ===============================
-// FIELD + FORMATIONS
+// FIELD + BENCH RENDERING
 // ===============================
 
 const FORMATION_SLOTS = {
@@ -532,117 +494,109 @@ const POSITION_WEIGHTS = {
 };
 
 // ===============================
-// SUBSTITUTION / SUGGESTION ENGINE
+// SMART SUGGESTION ENGINE
 // ===============================
+
+const MIN_SUGGESTION_TIME = 60; // seconds
+const PRIMARY_SCORE_THRESHOLD = 0.55;
+const SECONDARY_SCORE_THRESHOLD = 0.40;
+const FATIGUE_THRESHOLD = 120; // seconds more field than bench
 
 function scoreFitForSlot(player, slotId) {
   const weights = POSITION_WEIGHTS[slotId];
-  if (!weights) return -1;
+  if (!weights) return -999;
 
   const allPositions = [
     ...(player.positions.primary || []),
     ...(player.positions.secondary || []),
     ...(player.positions.tertiary || [])
-  ];
+  ].map(normalizePositionName);
 
-  const normalizedPositions = allPositions.map(normalizePositionName);
   const normalizedSlot = normalizePositionName(slotId);
 
-  if (!normalizedPositions.includes(normalizedSlot)) {
-    return -999; // not trained for this position
-  }
+  if (!allPositions.includes(normalizedSlot)) return -999;
+  if (normalizedSlot === "Keep" && !allPositions.includes("Keep")) return -999;
 
-  if (normalizedSlot === "Keep") {
-    const isGK = normalizedPositions.includes("Keep");
-    if (!isGK) return -999;
-  }
-
-  const atk = typeof player.attackRating === "number" ? player.attackRating : 0.5;
-  const def = typeof player.defenseRating === "number" ? player.defenseRating : 0.5;
+  const atk = player.attackRating ?? 0.5;
+  const def = player.defenseRating ?? 0.5;
 
   return atk * weights.attack + def * weights.defense;
 }
 
-function getNextPositionNeedingSub() {
-  const team = getCurrentTeam();
-  if (!team) return null;
-
-  const assigned = team.players
-    .filter(p => p.onField && p.assignedPos)
-    .map(p => ({ player: p, slotId: p.assignedPos }));
-
-  if (!assigned.length) return null;
-
-  assigned.sort((a, b) => b.player.minutesField - a.player.minutesField);
-  return assigned[0];
+function getFatigueScore(player) {
+  return player.minutesField - player.minutesBench;
 }
 
-function getNextSuggestedSub() {
+function isFatigued(player) {
+  return getFatigueScore(player) >= FATIGUE_THRESHOLD;
+}
+
+function suggestionsActive() {
+  if (gameClockSeconds < MIN_SUGGESTION_TIME) return false;
+
+  const team = getCurrentTeam();
+  if (!team) return false;
+
+  const anyMinutes = team.players.some(p => p.minutesField > 0);
+  return anyMinutes;
+}
+
+function buildBenchSuggestions() {
+  const team = getCurrentTeam();
+  if (!team) return [];
+
+  const bench = team.players.filter(p => !p.onField);
+  const slots = FORMATION_SLOTS[team.formation] || [];
+
+  return bench.map(benchPlayer => {
+    const fits = slots.map(slot => {
+      const score = scoreFitForSlot(benchPlayer, slot.id);
+      return { slotId: slot.id, score };
+    }).sort((a, b) => b.score - a.score);
+
+    const primary = fits.find(f => f.score >= PRIMARY_SCORE_THRESHOLD);
+    const secondary = fits.find(f => f.score >= SECONDARY_SCORE_THRESHOLD && f.score < PRIMARY_SCORE_THRESHOLD);
+
+    return {
+      benchPlayer,
+      primary,
+      secondary,
+      allFits: fits
+    };
+  });
+}
+
+function getTopSuggestion() {
+  if (!suggestionsActive()) return null;
+
   const team = getCurrentTeam();
   if (!team) return null;
 
-  const benchPlayers = team.players.filter(p => !p.onField);
-  if (!benchPlayers.length) return null;
+  const benchSuggestions = buildBenchSuggestions();
 
-  const slots = FORMATION_SLOTS[team.formation] || FORMATION_SLOTS["7v7-2-3-1"];
+  const fatiguedField = team.players
+    .filter(p => p.onField)
+    .filter(isFatigued)
+    .sort((a, b) => getFatigueScore(b) - getFatigueScore(a));
 
-  // empty slot first
-  const emptySlots = slots.filter(slot => {
-    return !team.players.some(p => p.onField && p.assignedPos === slot.id);
-  });
+  if (!fatiguedField.length) return null;
 
-  if (emptySlots.length > 0) {
-    const slotId = emptySlots[0].id;
+  const targetFieldPlayer = fatiguedField[0];
+  const slotId = targetFieldPlayer.assignedPos;
+  if (!slotId) return null;
 
-    const ranked = benchPlayers
-      .map(p => ({
-        player: p,
-        score: scoreFitForSlot(p, slotId)
-      }))
-      .filter(r => r.score > -900)
-      .sort((a, b) => b.score - a.score);
+  const candidates = benchSuggestions
+    .filter(s => s.primary && s.primary.slotId === slotId)
+    .sort((a, b) => b.primary.score - a.primary.score);
 
-    const best = ranked[0];
-    if (!best) return null;
-
-    return {
-      benchPlayerId: best.player.id,
-      fieldPlayerId: null,
-      slotId,
-      score: best.score,
-      type: "fill"
-    };
-  }
-
-  const next = getNextPositionNeedingSub();
-  if (!next) return null;
-
-  const fieldPlayer = next.player;
-  const slotId = next.slotId;
-  const fieldScore = scoreFitForSlot(fieldPlayer, slotId);
-
-  const ranked = benchPlayers
-    .map(p => ({
-      player: p,
-      score: scoreFitForSlot(p, slotId)
-    }))
-    .filter(r => r.score > -900)
-    .sort((a, b) => b.score - a.score);
-
-  const bestBench = ranked[0];
-  if (!bestBench) return null;
-
-  const fieldNeedsRest = fieldPlayer.minutesField > fieldPlayer.minutesBench;
-  const benchIsBetter = bestBench.score > fieldScore;
-
-  if (!fieldNeedsRest && !benchIsBetter) return null;
+  if (!candidates.length) return null;
 
   return {
-    benchPlayerId: bestBench.player.id,
-    fieldPlayerId: fieldPlayer.id,
+    type: "primary",
+    benchPlayer: candidates[0].benchPlayer,
+    fieldPlayer: targetFieldPlayer,
     slotId,
-    score: bestBench.score,
-    type: "swap"
+    score: candidates[0].primary.score
   };
 }
 
@@ -724,6 +678,9 @@ function renderField() {
 
       const token = document.createElement("div");
       token.className = "player-token";
+      if (isFatigued(player)) {
+        token.classList.add("fatigued");
+      }
       token.style.left = `${slot.x}%`;
       token.style.top = `${slot.y}%`;
       token.innerHTML = `
@@ -742,7 +699,6 @@ function renderField() {
         selectedPlayerId = player.id;
         renderField();
         renderBench();
-        renderSuggestions();
       });
 
       token.addEventListener("click", (e) => {
@@ -750,7 +706,6 @@ function renderField() {
         selectedPlayerId = player.id;
         renderField();
         renderBench();
-        renderSuggestions();
       });
 
       fieldEl.appendChild(token);
@@ -783,24 +738,14 @@ function handleBenchDropZone() {
 }
 
 function sortBenchPlayers(players) {
-  const suggestion = getNextSuggestedSub();
-  const suggestedId = suggestion ? suggestion.benchPlayerId : null;
+  const top = getTopSuggestion();
+  const topId = top ? top.benchPlayer.id : null;
 
   return players.slice().sort((a, b) => {
-    if (a.id === suggestedId) return -1;
-    if (b.id === suggestedId) return 1;
+    if (a.id === topId) return -1;
+    if (b.id === topId) return 1;
 
-    if (b.minutesBench !== a.minutesBench) {
-      return b.minutesBench - a.minutesBench;
-    }
-
-    const next = getNextPositionNeedingSub();
-    if (!next) return 0;
-
-    const scoreA = scoreFitForSlot(a, next.slotId);
-    const scoreB = scoreFitForSlot(b, next.slotId);
-
-    return scoreB - scoreA;
+    return b.minutesBench - a.minutesBench;
   });
 }
 
@@ -840,47 +785,50 @@ function renderBench() {
   if (!team) return;
   benchEl.innerHTML = "";
 
-  const suggestion = getNextSuggestedSub();
-  onDeckPlayerId = suggestion ? suggestion.benchPlayerId : null;
-
   const benchPlayers = sortBenchPlayers(team.players.filter(p => !p.onField));
+  const benchSuggestions = buildBenchSuggestions();
+  const top = getTopSuggestion();
 
   benchPlayers.forEach(player => {
     const token = document.createElement("div");
     token.className = "player-token bench";
 
-    if (player.id === onDeckPlayerId) {
+    if (top && top.benchPlayer.id === player.id) {
       token.classList.add("on-deck");
     }
 
     token.innerHTML = `
       <div class="player-number">#${player.number}</div>
       <div class="player-name">${player.name}</div>
-
       <div class="minutes">
-        <span class="bench-time ${player.onField ? "" : "active"}">B: ${player.minutesBench}</span>
-        |
-        <span class="field-time ${player.onField ? "active" : ""}">F: ${player.minutesField}</span>
+        B: ${player.minutesBench} | F: ${player.minutesField}
       </div>
-
       <div class="minutes">
         ${Math.round(player.attackRating * 100)}/${Math.round(player.defenseRating * 100)} A/D
       </div>
     `;
 
-    if (suggestion && suggestion.benchPlayerId === player.id) {
-      const slotId = suggestion.slotId;
-      const rec = document.createElement("div");
-      rec.className = "recommended-sub";
+    const suggestion = benchSuggestions.find(s => s.benchPlayer.id === player.id);
 
-      if (suggestion.type === "fill") {
-        rec.textContent = `Next Sub: Fill ${slotId}`;
-      } else {
-        const target = getPlayerById(suggestion.fieldPlayerId);
-        rec.textContent = `Next Sub: Replace ${target.name} at ${slotId}`;
-      }
+    if (suggestion && suggestion.primary) {
+      const target = document.createElement("div");
+      target.className = "target primary";
+      target.textContent = `Primary: ${suggestion.primary.slotId} (${Math.round(suggestion.primary.score * 100)}%)`;
+      token.appendChild(target);
+    }
 
-      token.appendChild(rec);
+    if (suggestion && suggestion.secondary) {
+      const target = document.createElement("div");
+      target.className = "target secondary";
+      target.textContent = `Secondary: ${suggestion.secondary.slotId} (${Math.round(suggestion.secondary.score * 100)}%)`;
+      token.appendChild(target);
+    }
+
+    if (!suggestion || (!suggestion.primary && !suggestion.secondary)) {
+      const target = document.createElement("div");
+      target.className = "target none";
+      target.textContent = `No strong fit`;
+      token.appendChild(target);
     }
 
     if (selectedPlayerId === player.id) {
@@ -903,7 +851,7 @@ function renderBench() {
 }
 
 // ===============================
-// SUGGESTIONS (position-aware + alias-aware)
+// SUGGESTIONS PANEL
 // ===============================
 
 function renderSuggestions() {
@@ -912,23 +860,39 @@ function renderSuggestions() {
 
   suggestionListEl.innerHTML = "";
 
-  const suggestion = getNextSuggestedSub();
-  if (!suggestion) return;
-
-  const benchPlayer = getPlayerById(suggestion.benchPlayerId);
-  const slotId = suggestion.slotId;
-
-  if (suggestion.type === "fill") {
+  if (!suggestionsActive()) {
     const li = document.createElement("li");
-    li.textContent = `Fill ${slotId}: #${benchPlayer.number} ${benchPlayer.name}`;
+    li.textContent = "No suggestions yet (waiting for minutes to accumulate).";
     suggestionListEl.appendChild(li);
     return;
   }
 
-  const fieldPlayer = getPlayerById(suggestion.fieldPlayerId);
-  const li = document.createElement("li");
-  li.textContent = `Swap at ${slotId}: #${benchPlayer.number} ${benchPlayer.name} for #${fieldPlayer.number} ${fieldPlayer.name}`;
-  suggestionListEl.appendChild(li);
+  const top = getTopSuggestion();
+  const benchSuggestions = buildBenchSuggestions();
+
+  if (top) {
+    const li = document.createElement("li");
+    li.textContent = `Recommended: #${top.benchPlayer.number} ${top.benchPlayer.name} for #${top.fieldPlayer.number} ${top.fieldPlayer.name} at ${top.slotId}`;
+    suggestionListEl.appendChild(li);
+  }
+
+  benchSuggestions.forEach(s => {
+    const li = document.createElement("li");
+    li.textContent = `#${s.benchPlayer.number} ${s.benchPlayer.name}: `;
+
+    if (s.primary) {
+      li.textContent += `Primary ${s.primary.slotId} (${Math.round(s.primary.score * 100)}%)`;
+      if (s.secondary) {
+        li.textContent += ` | Secondary ${s.secondary.slotId} (${Math.round(s.secondary.score * 100)}%)`;
+      }
+    } else if (s.secondary) {
+      li.textContent += `Secondary ${s.secondary.slotId} (${Math.round(s.secondary.score * 100)}%)`;
+    } else {
+      li.textContent += `No strong fit`;
+    }
+
+    suggestionListEl.appendChild(li);
+  });
 }
 
 // ===============================
