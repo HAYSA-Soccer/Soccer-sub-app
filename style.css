@@ -165,16 +165,15 @@ body {
   border-bottom: none;
 }
 
-/* Goal box */
+/* ========================================= */
+/* Make goalie box visually distinct          */
+/* ========================================= */
+
 .field .goal-box {
-  position: absolute;
-  left: 35%;
-  width: 30%;
-  height: 10%;
-  bottom: 0;
-  border: 2px solid #ffffff55;
-  border-bottom: none;
+  border: 2px solid rgba(255,255,255,0.45);  /* brighter than penalty box */
+  background-color: rgba(255,255,255,0.10);  /* faint fill */
 }
+
 
 /* Goal line */
 .field .goal-line {
