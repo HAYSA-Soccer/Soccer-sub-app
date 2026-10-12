@@ -406,3 +406,24 @@ body {
     font-size: 0.75rem;
   }
 }
+
+/* ========================================= */
+/* FIX: Field lines must NOT block clicks     */
+/* ========================================= */
+.field::before,
+.field::after,
+.field .penalty-box,
+.field .goal-box,
+.field .goal-line,
+.field .penalty-spot,
+.field .corner {
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Position circles + players must always be clickable */
+.position-slot,
+.player-token {
+  pointer-events: auto;
+  z-index: 10;
+}
